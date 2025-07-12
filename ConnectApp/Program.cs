@@ -40,7 +40,7 @@ namespace ConnectApp
                     var logger = services.GetRequiredService<ILogger<Program>>();
 
                     logger.LogInformation("Applying pending migrations...");
-                    dbContext.Database.Migrate();
+                    await dbContext.Database.MigrateAsync();
 
                     logger.LogInformation("Seeding database...");
                     await DbInitializer.SeedAsync(dbContext, logger);
