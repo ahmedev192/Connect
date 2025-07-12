@@ -12,6 +12,7 @@ namespace ConnectApp.Data
 
         }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -46,6 +47,22 @@ namespace ConnectApp.Data
                     DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc)
 
                 });
+
+
+            modelBuilder.Entity<User>().HasData(new User
+            {
+                  Id = 1,
+                  FullName = "Ahmed Mahmoud",
+                  ProfilePictureUrl = " "
+            },
+            new User
+            {
+                Id = 2,
+                FullName = "Youssef Mostafa",
+                ProfilePictureUrl = " "
+            }
+            );
+
                
         }
 
