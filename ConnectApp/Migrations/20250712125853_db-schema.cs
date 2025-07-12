@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace ConnectApp.Migrations
 {
     /// <inheritdoc />
-    public partial class initialtables : Migration
+    public partial class dbschema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -49,25 +47,6 @@ namespace ConnectApp.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "Id", "FullName", "ProfilePictureUrl" },
-                values: new object[,]
-                {
-                    { 1, "Ahmed Mahmoud", " " },
-                    { 2, "Youssef Mostafa", " " }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Posts",
-                columns: new[] { "Id", "Content", "DateCreated", "DateUpdated", "ImageUrl", "NrOfReports", "UserId" },
-                values: new object[,]
-                {
-                    { 1, "Welcome to ConnectApp! This is your first post.", new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc), new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc), null, 0, 1 },
-                    { 2, "ConnectApp is designed to help you connect with others.", new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc), new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc), null, 0, 2 },
-                    { 3, "Feel free to explore and share your thoughts!", new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc), new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc), null, 0, 1 }
                 });
 
             migrationBuilder.CreateIndex(

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConnectApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250712120436_initial-tables")]
-    partial class initialtables
+    [Migration("20250712125853_db-schema")]
+    partial class dbschema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,35 +57,6 @@ namespace ConnectApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Content = "Welcome to ConnectApp! This is your first post.",
-                            DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            NrOfReports = 0,
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Content = "ConnectApp is designed to help you connect with others.",
-                            DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            NrOfReports = 0,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Content = "Feel free to explore and share your thoughts!",
-                            DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            NrOfReports = 0,
-                            UserId = 1
-                        });
                 });
 
             modelBuilder.Entity("ConnectApp.Models.User", b =>
@@ -106,20 +77,6 @@ namespace ConnectApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            FullName = "Ahmed Mahmoud",
-                            ProfilePictureUrl = " "
-                        },
-                        new
-                        {
-                            Id = 2,
-                            FullName = "Youssef Mostafa",
-                            ProfilePictureUrl = " "
-                        });
                 });
 
             modelBuilder.Entity("ConnectApp.Models.Post", b =>
