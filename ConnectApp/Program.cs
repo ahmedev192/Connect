@@ -1,3 +1,6 @@
+using ConnectApp.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace ConnectApp
 {
     public class Program
@@ -5,9 +8,12 @@ namespace ConnectApp
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            string dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(dbConnectionString));
 
             var app = builder.Build();
 
