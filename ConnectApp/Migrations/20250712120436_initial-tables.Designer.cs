@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConnectApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250712113830_postid-to-id")]
-    partial class postidtoid
+    [Migration("20250712120436_initial-tables")]
+    partial class initialtables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,7 +49,12 @@ namespace ConnectApp.Migrations
                     b.Property<int>("NrOfReports")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Posts");
 
@@ -60,7 +65,8 @@ namespace ConnectApp.Migrations
                             Content = "Welcome to ConnectApp! This is your first post.",
                             DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            NrOfReports = 0
+                            NrOfReports = 0,
+                            UserId = 1
                         },
                         new
                         {
@@ -68,7 +74,8 @@ namespace ConnectApp.Migrations
                             Content = "ConnectApp is designed to help you connect with others.",
                             DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            NrOfReports = 0
+                            NrOfReports = 0,
+                            UserId = 2
                         },
                         new
                         {
@@ -76,8 +83,59 @@ namespace ConnectApp.Migrations
                             Content = "Feel free to explore and share your thoughts!",
                             DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
-                            NrOfReports = 0
+                            NrOfReports = 0,
+                            UserId = 1
                         });
+                });
+
+            modelBuilder.Entity("ConnectApp.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            FullName = "Ahmed Mahmoud",
+                            ProfilePictureUrl = " "
+                        },
+                        new
+                        {
+                            Id = 2,
+                            FullName = "Youssef Mostafa",
+                            ProfilePictureUrl = " "
+                        });
+                });
+
+            modelBuilder.Entity("ConnectApp.Models.Post", b =>
+                {
+                    b.HasOne("ConnectApp.Models.User", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ConnectApp.Models.User", b =>
+                {
+                    b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618
         }

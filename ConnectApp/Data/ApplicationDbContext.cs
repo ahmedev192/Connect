@@ -19,19 +19,19 @@ namespace ConnectApp.Data
             base.OnModelCreating(modelBuilder);
 
 
-            modelBuilder.Entity<User>().HasData(new User
+            modelBuilder.Entity<User>().HasData(
+            new User
             {
                 Id = 1,
                 FullName = "Ahmed Mahmoud",
                 ProfilePictureUrl = " "
             },
-new User
-{
-    Id = 2,
-    FullName = "Youssef Mostafa",
-    ProfilePictureUrl = " "
-}
-);
+            new User
+            {
+                Id = 2,
+                FullName = "Youssef Mostafa",
+                ProfilePictureUrl = " "
+            });
 
 
 
