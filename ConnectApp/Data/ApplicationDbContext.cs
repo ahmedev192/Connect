@@ -20,7 +20,7 @@ namespace ConnectApp.Data
             modelBuilder.Entity<Post>().HasData(
                 new Post
                 {
-                    PostId = 1,
+                    Id = 1,
                     Content = "Welcome to ConnectApp! This is your first post.",
                     ImageUrl = null,
                     NrOfReports = 0,
@@ -29,7 +29,7 @@ namespace ConnectApp.Data
                 },
                 new Post
                 {
-                    PostId = 2,
+                    Id = 2,
                     Content = "ConnectApp is designed to help you connect with others.",
                     ImageUrl = null,
                     NrOfReports = 0,
@@ -38,7 +38,7 @@ namespace ConnectApp.Data
                 },
                 new Post
                 {
-                    PostId = 3,
+                    Id = 3,
                     Content = "Feel free to explore and share your thoughts!",
                     ImageUrl = null,
                     NrOfReports = 0,
