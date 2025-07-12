@@ -18,6 +18,23 @@ namespace ConnectApp.Data
         {
             base.OnModelCreating(modelBuilder);
 
+
+            modelBuilder.Entity<User>().HasData(new User
+            {
+                Id = 1,
+                FullName = "Ahmed Mahmoud",
+                ProfilePictureUrl = " "
+            },
+new User
+{
+    Id = 2,
+    FullName = "Youssef Mostafa",
+    ProfilePictureUrl = " "
+}
+);
+
+
+
             modelBuilder.Entity<Post>().HasData(
                 new Post
                 {
@@ -26,7 +43,8 @@ namespace ConnectApp.Data
                     ImageUrl = null,
                     NrOfReports = 0,
                     DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
-                    DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc)
+                    DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
+                    UserId = 1
                 },
                 new Post
                 {
@@ -34,8 +52,10 @@ namespace ConnectApp.Data
                     Content = "ConnectApp is designed to help you connect with others.",
                     ImageUrl = null,
                     NrOfReports = 0,
-                    DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc), 
-                    DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc)
+                    DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
+                    DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
+                    UserId = 2
+
                 },
                 new Post
                 {
@@ -44,26 +64,16 @@ namespace ConnectApp.Data
                     ImageUrl = null,
                     NrOfReports = 0,
                     DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
-                    DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc)
+                    DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
+                    UserId = 1
+
 
                 });
 
 
-            modelBuilder.Entity<User>().HasData(new User
-            {
-                  Id = 1,
-                  FullName = "Ahmed Mahmoud",
-                  ProfilePictureUrl = " "
-            },
-            new User
-            {
-                Id = 2,
-                FullName = "Youssef Mostafa",
-                ProfilePictureUrl = " "
-            }
-            );
 
-               
+
+
         }
 
     }

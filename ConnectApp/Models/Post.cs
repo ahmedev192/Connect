@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace ConnectApp.Models
 {
@@ -12,5 +13,9 @@ namespace ConnectApp.Models
         public int NrOfReports { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateUpdated { get; set; }
+
+        public int UserId { get; set; }
+        [ValidateNever]
+        public User User { get; set; }
     }
 }

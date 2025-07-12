@@ -4,6 +4,7 @@ using ConnectApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConnectApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250712115917_user-post-relationship")]
+    partial class userpostrelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,7 @@ namespace ConnectApp.Migrations
                             DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             NrOfReports = 0,
-                            UserId = 1
+                            UserId = 0
                         },
                         new
                         {
@@ -72,7 +75,7 @@ namespace ConnectApp.Migrations
                             DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             NrOfReports = 0,
-                            UserId = 2
+                            UserId = 0
                         },
                         new
                         {
@@ -81,7 +84,7 @@ namespace ConnectApp.Migrations
                             DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, 0, DateTimeKind.Utc),
                             NrOfReports = 0,
-                            UserId = 1
+                            UserId = 0
                         });
                 });
 
