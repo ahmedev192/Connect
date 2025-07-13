@@ -57,7 +57,7 @@ namespace Connect.Controllers
                     await _context.SaveChangesAsync();
 
                     TempData["Success"] = "Post created successfully!";
-                    return RedirectToAction("Index");
+                    return RedirectToAction( "Index" , "Home");
                 }
             }
             catch (Exception ex)
