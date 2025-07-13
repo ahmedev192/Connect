@@ -11,6 +11,7 @@
 		_ => "Just now"
 	};
 }
+
 <div class="bg-white border1 rounded-xl text-sm font-medium shadow-sm">
 
 	@* Post heading *@
@@ -20,7 +21,6 @@
 				 onerror="this.onerror=null; this.src='@Url.Content("~/images/avatar/user.png")';"
 				 class="w-9 h-9 rounded-full" />
 		</a>
-
 		<div class="flex-1">
 			<a>
 				<h4 class="text-black">@Model.User.FullName</h4>
@@ -78,11 +78,18 @@
 	<div class="p-2.5 gap-4 flex items-center text-xs font-semibold sm:p-4">
 
 		<div class="gap-2.5 flex items-center">
-			<a class="button-icon text-red-500 bg-red-100">
-				<ion-icon class="text-lg" name="heart"></ion-icon>
-			</a>
-			<a href="#">24</a>
+			<form asp-controller="Post" asp-action="TogglePostLike">
+				<input type="hidden" name="postId" value="@Model.Id" />
+				<button type="submit" class="button-icon @(Model.Likes.Any(n => n.UserId == 1) ? "text-red-500 bg-red-100" : "")">
+					<ion-icon class="text-lg"
+							  name="@(Model.Likes.Any(n => n.UserId == 1) ? "heart" : "heart-outline")"></ion-icon>
+				</button>
+			</form>
+
+			<a href="#">@Model.Likes.Count</a>
 		</div>
+
+
 
 		<div class="gap-3 flex items-center">
 			<a class="button-icon">
@@ -114,5 +121,3 @@
 		</div>
 	</div>
 </div>
-
-

@@ -3,6 +3,7 @@ using Connect.Models;
 using Connect.Utilities.Service.IService;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Connect.Controllers
 {
@@ -36,7 +37,7 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Post post, IFormFile? file)
         {
-            int userId = 1; // TODO: Replace with actual user ID
+            int userId = 1; // Temrary user ID, will be replaced with actual user ID from authentication context
 
             try
             {
@@ -57,7 +58,7 @@ namespace Connect.Controllers
                     await _context.SaveChangesAsync();
 
                     TempData["Success"] = "Post created successfully!";
-                    return RedirectToAction( "Index" , "Home");
+                    return RedirectToAction("Index", "Home");
                 }
             }
             catch (Exception ex)
@@ -68,5 +69,46 @@ namespace Connect.Controllers
             return View(post);
         }
 
+
+
+        [HttpPost]
+        public async Task<IActionResult> TogglePostLike(int postId)
+        {
+            int userId = 1; // Temrary user ID, will be replaced with actual user ID from authentication context
+
+            try
+            {
+                var post = await _context.Posts
+                    .Include(p => p.Likes)
+                    .FirstOrDefaultAsync(p => p.Id == postId);
+
+                if (post == null)
+                {
+                    return NotFound();
+                }
+                var existingLike = await _context.Likes
+                    .FirstOrDefaultAsync(pl => pl.PostId == postId && pl.UserId == userId);
+                if (existingLike != null)
+                {
+                    _context.Likes.Remove(existingLike);
+                }
+                else
+                {
+                    var newLike = new Like { PostId = postId, UserId = userId };
+                    await _context.Likes.AddAsync(newLike);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return View();
+
+
+
+            }
+            return RedirectToAction("Index", "Home");
+
+
+        }
     }
 }
