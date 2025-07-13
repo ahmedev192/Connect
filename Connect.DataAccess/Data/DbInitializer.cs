@@ -18,8 +18,8 @@ namespace Connect.DataAccess.Data
                 {
                     var users = new List<User>
             {
-                new User { FullName = "Ahmed Mahmoud", ProfilePictureUrl = "https://example.com/profile1.jpg" },
-                new User { FullName = "Youssef Mostafa", ProfilePictureUrl = "https://example.com/profile2.jpg" }
+                new User { FullName = "Ahmed Mahmoud", ProfilePictureUrl = "" },
+                new User { FullName = "Youssef Mostafa", ProfilePictureUrl = "" }
             };
 
                     await applicationDbContext.Users.AddRangeAsync(users);
