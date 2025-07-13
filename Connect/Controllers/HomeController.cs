@@ -21,6 +21,7 @@ namespace Connect.Controllers
         {
             var allPosts = await _context.Posts
                 .Include(u => u.User)
+                .OrderByDescending(n => n.DateCreated)
                 .ToListAsync();
 
             return View(allPosts);
