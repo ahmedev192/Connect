@@ -1,7 +1,7 @@
-using ConnectApp.Data;
+using Connect.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace ConnectApp
+namespace Connect
 {
     public class Program
     {

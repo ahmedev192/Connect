@@ -1,11 +1,10 @@
 using System;
 using System.Diagnostics;
-using ConnectApp.Data;
-using ConnectApp.Models;
+using Connect.DataAccess.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace ConnectApp.Controllers
+namespace Connect.Controllers
 {
     public class HomeController : Controller
     {

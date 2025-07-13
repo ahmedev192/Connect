@@ -1,4 +1,4 @@
-﻿namespace ConnectApp.Models
+﻿namespace Connect.Models
 {
     public class User
     {

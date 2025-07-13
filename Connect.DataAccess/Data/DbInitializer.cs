@@ -1,8 +1,9 @@
 ﻿using System;
-using ConnectApp.Models;
+using Connect.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace ConnectApp.Data
+namespace Connect.DataAccess.Data
 {
     public static class DbInitializer
     {
@@ -32,7 +33,7 @@ namespace ConnectApp.Data
             {
                 new Post
                 {
-                    Content = "Welcome to ConnectApp! This is your first post.",
+                    Content = "Welcome to Connect! This is your first post.",
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow,
                     NrOfReports = 0,
@@ -40,7 +41,7 @@ namespace ConnectApp.Data
                 },
                 new Post
                 {
-                    Content = "ConnectApp is designed to help you connect with others.",
+                    Content = "Connect is designed to help you connect with others.",
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow,
                     NrOfReports = 0,

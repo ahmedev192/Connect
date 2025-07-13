@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ConnectApp.Migrations
+namespace Connect.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class dbschema : Migration

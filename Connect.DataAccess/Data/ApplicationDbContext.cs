@@ -1,8 +1,7 @@
-﻿using ConnectApp.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Connect.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ConnectApp.Data
+namespace Connect.DataAccess.Data
 {
     public class ApplicationDbContext : DbContext
     {
@@ -44,7 +43,7 @@ namespace ConnectApp.Data
             //    new Post
             //    {
             //        Id = 1,
-            //        Content = "Welcome to ConnectApp! This is your first post.",
+            //        Content = "Welcome to Connect! This is your first post.",
             //        ImageUrl = null,
             //        NrOfReports = 0,
             //        DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
@@ -54,7 +53,7 @@ namespace ConnectApp.Data
             //    new Post
             //    {
             //        Id = 2,
-            //        Content = "ConnectApp is designed to help you connect with others.",
+            //        Content = "Connect is designed to help you connect with others.",
             //        ImageUrl = null,
             //        NrOfReports = 0,
             //        DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
