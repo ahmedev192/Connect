@@ -17,6 +17,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Connect.DataAccess\Connect.DataAccess.csproj" />
+    <ProjectReference Include="..\Connect.Utilities\Connect.Utilities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\Post\" />
   </ItemGroup>
 
 </Project>

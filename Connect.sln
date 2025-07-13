@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.DataAccess", "Conne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.Models", "Connect.Models\Connect.Models.csproj", "{3EC86DDB-99CD-40EF-93A6-AF6F4294011E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.Utilities", "Connect.Utilities\Connect.Utilities.csproj", "{A11EF3F5-16BF-4F34-B6E1-84E6979B6936}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{3EC86DDB-99CD-40EF-93A6-AF6F4294011E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EC86DDB-99CD-40EF-93A6-AF6F4294011E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EC86DDB-99CD-40EF-93A6-AF6F4294011E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A11EF3F5-16BF-4F34-B6E1-84E6979B6936}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A11EF3F5-16BF-4F34-B6E1-84E6979B6936}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A11EF3F5-16BF-4F34-B6E1-84E6979B6936}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A11EF3F5-16BF-4F34-B6E1-84E6979B6936}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,7 @@
 ﻿using Connect.DataAccess.Data;
 using Connect.Models;
+using Connect.Utilities.Service.IService;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Connect.Controllers
@@ -8,10 +10,12 @@ namespace Connect.Controllers
     {
 
         private readonly ApplicationDbContext _context;
+        private readonly IFileUploadService _fileUploadService;
 
-        public PostController(ApplicationDbContext context)
+        public PostController(ApplicationDbContext context, IFileUploadService fileUploadService)
         {
             _context = context;
+            _fileUploadService = fileUploadService;
         }
 
         public IActionResult Index()
@@ -30,24 +34,39 @@ namespace Connect.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Create(Post post)
+        public async Task<IActionResult> Create(Post post, IFormFile? file)
         {
-            // This method is used to handle the form submission for creating a new post.
+            int userId = 1; // TODO: Replace with actual user ID
 
-            int userId = 1; // This should be replaced with the actual user ID from the logged-in user context.
-
-           post.UserId = userId; // Set the UserId for the post
-
-            // It should validate the post data and save it to the database.
-            if (ModelState.IsValid)
+            try
             {
-                // Save the post to the database
-                _context.Posts.AddAsync(post);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
-            }
-            return View(post);
+                if (ModelState.IsValid)
+                {
+                    if (file != null && !file.ContentType.StartsWith("image/"))
+                    {
+                        ModelState.AddModelError("Image", "Only image files are allowed.");
+                        return View(post);
+                    }
 
+                    string? imageUrl = await _fileUploadService.SavePostImageAsync(file, "posts");
+
+                    post.UserId = userId;
+                    post.ImageUrl = imageUrl ?? "";
+
+                    await _context.Posts.AddAsync(post);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Post created successfully!";
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while creating the post.");
+            }
+
+            return View(post);
         }
+
     }
 }

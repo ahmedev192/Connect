@@ -1,4 +1,6 @@
 using Connect.DataAccess.Data;
+using Connect.Utilities.Service.IService;
+using Connect.Utilities.Service;
 using Microsoft.EntityFrameworkCore;
 
 namespace Connect
@@ -14,6 +16,7 @@ namespace Connect
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(dbConnectionString));
+            builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
             var app = builder.Build();
 

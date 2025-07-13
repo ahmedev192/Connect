@@ -8,6 +8,8 @@ namespace Connect.Models
         [Key]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Content is required.")]
+        [MaxLength(700, ErrorMessage = "Content can't exceed 700 characters.")]
         public string Content { get; set; }
         public string? ImageUrl { get; set; }
         public int NrOfReports { get; set; }
