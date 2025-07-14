@@ -110,5 +110,49 @@ namespace Connect.Controllers
 
 
         }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddPostComment(Comment comment)
+        {
+            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+
+            comment.UserId = userId;
+            comment.DateCreated = DateTime.UtcNow;
+            comment.DateUpdated = DateTime.UtcNow;
+            await _context.Comments.AddAsync(comment);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index", "Home");
+
+
+
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RemovePostComment(int commentId)
+        {
+            try
+            {
+                var comment = await _context.Comments.FindAsync(commentId);
+                if (comment == null)
+                {
+                    return NotFound();
+                }
+                _context.Comments.Remove(comment);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return View();
+            }
+            return RedirectToAction("Index", "Home");
+
+
+
+
+
+        }
     }
 }

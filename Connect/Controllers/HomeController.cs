@@ -20,9 +20,13 @@ namespace Connect.Controllers
         public async Task<IActionResult> Index()
         {
             var allPosts = await _context.Posts
-                .Include(u => u.User).Include(n => n.Likes)
-                .OrderByDescending(n => n.DateCreated)
+                .Include(post => post.User)
+                .Include(post => post.Likes)
+                .Include(post => post.Comments)
+                    .ThenInclude(comment => comment.User)
+                .OrderByDescending(post => post.DateCreated)
                 .ToListAsync();
+
 
             return View(allPosts);
         }
