@@ -216,6 +216,36 @@ namespace Connect.Controllers
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> AddPostReport(int postId)
+        {
+            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            try
+            {
+                var existingReport = await _context.Reports
+                    .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId);
+                if (existingReport != null)
+                {
+                    ModelState.AddModelError("", "You have already reported this post.");
+                    return RedirectToAction("Index", "Home");
+                }
+                var report = new Report
+                {
+                    PostId = postId,
+                    UserId = userId,
+                    DateCreated = DateTime.UtcNow
+                };
+                await _context.Reports.AddAsync(report);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Post reported successfully!";
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while reporting the post.");
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
 
     }
 }

@@ -15,6 +15,7 @@ namespace Connect.DataAccess.Data
         public DbSet<Like> Likes { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
 
 
@@ -23,11 +24,16 @@ namespace Connect.DataAccess.Data
             base.OnModelCreating(modelBuilder);
 
 
+            //Posts
+
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Posts)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            //Likes
 
             modelBuilder.Entity<Like>()
                 .HasOne(l => l.User)
@@ -40,6 +46,8 @@ namespace Connect.DataAccess.Data
                 .WithMany(p => p.Likes)
                 .HasForeignKey(l => l.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //Comments
 
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Post)
@@ -71,6 +79,21 @@ namespace Connect.DataAccess.Data
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            //Reports
+            modelBuilder.Entity<Report>()
+                .HasKey(f => new { f.PostId, f.UserId });
+
+            modelBuilder.Entity<Report>()
+                .HasOne(f => f.Post)
+                .WithMany(p => p.Reports)
+                .HasForeignKey(f => f.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Report>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Reports)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             //modelBuilder.Entity<User>().HasData(

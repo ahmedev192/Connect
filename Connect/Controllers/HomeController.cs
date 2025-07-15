@@ -23,7 +23,7 @@ namespace Connect.Controllers
                 .Include(post => post.User)
                 .Include(post => post.Likes)
                 .Include(post => post.Comments)
-                    .ThenInclude(comment => comment.User).Include(u=>u.Favorites)
+                    .ThenInclude(comment => comment.User).Include(u=>u.Favorites).Include(u=>u.Reports)
                 .OrderByDescending(post => post.DateCreated)
                 .ToListAsync();
 
