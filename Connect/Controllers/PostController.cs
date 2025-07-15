@@ -154,5 +154,35 @@ namespace Connect.Controllers
 
 
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> TogglePostFavorite(int  postId)
+        {
+            int userId = 1;
+
+            //check if user has already favorited the post
+            var favorite = await _context.Favorites
+                .Where(l => l.PostId == postId && l.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            if (favorite != null)
+            {
+                _context.Favorites.Remove(favorite);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                var newFavorite = new Favorite()
+                {
+                    PostId = postId,
+                    UserId = userId
+                };
+                await _context.Favorites.AddAsync(newFavorite);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Index" , "Home");
+        }
     }
 }
