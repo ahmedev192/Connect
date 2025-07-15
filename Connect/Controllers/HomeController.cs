@@ -19,7 +19,7 @@ namespace Connect.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var allPosts = await _context.Posts
+            var allPosts = await _context.Posts.Where(post => ! post.IsPrivate  )
                 .Include(post => post.User)
                 .Include(post => post.Likes)
                 .Include(post => post.Comments)

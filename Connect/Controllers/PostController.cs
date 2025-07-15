@@ -184,5 +184,38 @@ namespace Connect.Controllers
 
             return RedirectToAction("Index" , "Home");
         }
+
+
+
+
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleVisability(int postId)
+        {
+            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            try
+            {
+                var post = await _context.Posts.FindAsync(postId);
+                if (post == null)
+                {
+                    return NotFound();
+                }
+                post.IsPrivate = !post.IsPrivate;
+                post.DateUpdated = DateTime.UtcNow;
+                _context.Posts.Update(post);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Post visibility updated successfully!";
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while updating the post visibility.");
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+
+
     }
 }

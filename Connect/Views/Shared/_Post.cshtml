@@ -35,12 +35,15 @@
 		<div class="-mr-1">
 			<button type="button" class="button-icon w-8 h-8"> <ion-icon class="text-xl" name="ellipsis-horizontal"></ion-icon> </button>
 			<div class="w-[245px]" uk-dropdown="pos: bottom-right; animation: uk-animation-scale-up uk-transform-origin-top-right; animate-out: true; mode: click">
-				<form>
-					<input type="hidden" name="postId" />
-					<button type="submit" class="icon-link hover:!bg-red-50">
-						<ion-icon name="lock-closed-outline"></ion-icon>  Set as private
-					</button>
-				</form>
+				@if (Model.UserId == 1)
+				{
+					<form asp-controller="post" asp-action="ToggleVisability">
+						<input type="hidden" name="postId" value="@Model.Id" />
+						<button type="submit" class="icon-link hover:!bg-red-50">
+							<ion-icon name="@(Model.IsPrivate ? "lock-open-outline" : "lock-closed-outline")"></ion-icon>  Set as @(Model.IsPrivate ? "public" : "private")
+						</button>
+					</form>
+				}
 
 				<hr>
 				<form asp-controller="Home" asp-action="Delete">
