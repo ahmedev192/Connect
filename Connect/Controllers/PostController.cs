@@ -247,5 +247,38 @@ namespace Connect.Controllers
         }
 
 
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            try
+            {
+                var post = await _context.Posts.FindAsync(postId);
+                if (post == null || post.UserId != userId)
+                {
+                    return NotFound();
+                }
+                // Remove associated likes, comments, and favorites
+                var associatedLikes = _context.Likes.Where(l => l.PostId == postId);
+                var associatedFavorites = _context.Favorites.Where(f => f.PostId == postId);
+                var associatedReports = _context.Reports.Where(r => r.PostId == postId);
+                var associatedComments = _context.Comments.Where(c => c.PostId == postId);
+                _context.Likes.RemoveRange(associatedLikes);
+                _context.Favorites.RemoveRange(associatedFavorites);
+                _context.Reports.RemoveRange(associatedReports);
+                _context.Comments.RemoveRange(associatedComments);
+                _context.Posts.Remove(post);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Post deleted successfully!";
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while deleting the post.");
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+
     }
 }

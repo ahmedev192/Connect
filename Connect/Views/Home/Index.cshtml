@@ -101,5 +101,16 @@
 	</div>
 </main>
 
-<partial name="Modals/_CreateStory"  />
 <partial name="Modals/_CreateStatus" model="new Post()" />
+<partial name="_PostDeleteConfirmation" />
+<partial name="Modals/_CreateStory" />
+
+<script>
+	function openPostDeleteConfirmation(postId) {
+
+		console.log('Selected post id - ', postId);
+		UIkit.dropdown('.post-options-dropdown').hide();
+		document.getElementById('postId').value = postId;
+		UIkit.modal('#postDeleteDialog').show();
+	}
+</script>
