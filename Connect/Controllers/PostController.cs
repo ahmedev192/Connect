@@ -12,11 +12,13 @@ namespace Connect.Controllers
 
         private readonly ApplicationDbContext _context;
         private readonly IFileUploadService _fileUploadService;
+        private readonly IHashtagService _hashtagService;
 
-        public PostController(ApplicationDbContext context, IFileUploadService fileUploadService)
+        public PostController(ApplicationDbContext context, IFileUploadService fileUploadService, IHashtagService hashtagService)
         {
             _context = context;
             _fileUploadService = fileUploadService;
+            _hashtagService = hashtagService;
         }
 
         public IActionResult Index()
@@ -27,7 +29,6 @@ namespace Connect.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            // This method is used to display the page for creating a new post.
 
 
             return View();
@@ -56,6 +57,43 @@ namespace Connect.Controllers
 
                     await _context.Posts.AddAsync(post);
                     await _context.SaveChangesAsync();
+
+
+
+
+
+                    //Find and store hashtags
+                    var postHashtags = _hashtagService.ExtractHashtags(post.Content);
+                    foreach (var hashTag in postHashtags)
+                    {
+                        var hashtagDb = await _context.Hashtags.FirstOrDefaultAsync(n => n.Name == hashTag);
+                        if (hashtagDb != null)
+                        {
+                            hashtagDb.Count += 1;
+                            hashtagDb.DateUpdated = DateTime.UtcNow;
+
+                            _context.Hashtags.Update(hashtagDb);
+                            await _context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            var newHashtag = new Hashtag()
+                            {
+                                Name = hashTag,
+                                Count = 1,
+                                DateCreated = DateTime.UtcNow,
+                                DateUpdated = DateTime.UtcNow
+                            };
+                            await _context.Hashtags.AddAsync(newHashtag);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
+
+
+
+
+
 
                     TempData["Success"] = "Post created successfully!";
                     return RedirectToAction("Index", "Home");
@@ -157,7 +195,7 @@ namespace Connect.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> TogglePostFavorite(int  postId)
+        public async Task<IActionResult> TogglePostFavorite(int postId)
         {
             int userId = 1;
 
@@ -182,7 +220,7 @@ namespace Connect.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index" , "Home");
+            return RedirectToAction("Index", "Home");
         }
 
 
@@ -258,6 +296,21 @@ namespace Connect.Controllers
                 if (post == null || post.UserId != userId)
                 {
                     return NotFound();
+                }
+
+                //Update hashtags
+                var postHashtags = _hashtagService.ExtractHashtags(post.Content);
+                foreach (var hashtag in postHashtags)
+                {
+                    var hashtagDb = await _context.Hashtags.FirstOrDefaultAsync(n => n.Name == hashtag);
+                    if (hashtagDb != null)
+                    {
+                        hashtagDb.Count -= 1;
+                        hashtagDb.DateUpdated = DateTime.UtcNow;
+
+                        _context.Hashtags.Update(hashtagDb);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 // Remove associated likes, comments, and favorites
                 var associatedLikes = _context.Likes.Where(l => l.PostId == postId);

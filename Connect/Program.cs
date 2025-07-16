@@ -20,6 +20,8 @@ namespace Connect
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(dbConnectionString));
             builder.Services.AddScoped<IFileUploadService, FileUploadService>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IHashtagService, HashtagService>();
+
             var app = builder.Build();
 
 
