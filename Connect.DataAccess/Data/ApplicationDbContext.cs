@@ -16,6 +16,8 @@ namespace Connect.DataAccess.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<Story> Stories { get; set; }
+
 
 
 
@@ -95,6 +97,11 @@ namespace Connect.DataAccess.Data
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+
+            modelBuilder.Entity<User>()
+       .HasMany(u => u.Stories)
+       .WithOne(p => p.User)
+       .HasForeignKey(p => p.UserId);
 
             //modelBuilder.Entity<User>().HasData(
             //new User
