@@ -367,14 +367,8 @@ namespace Connect.Controllers
         {
             int userId = 1;
             var favoritePosts = await _context.Favorites
-              .Where(f => f.UserId == userId)
-              .Select(f => f.Post)
-              .Where(p =>  p.Reports.Count < 5)
-              .Include(p => p.User)
-              .Include(p => p.Likes)
-              .Include(p => p.Comments)
-                  .ThenInclude(c => c.User)
-              .ToListAsync();
+              .Where(f => f.UserId == userId).Include(u => u.User).Include(m => m.Post).ToListAsync();
+              
             return View(favoritePosts);
 
         }

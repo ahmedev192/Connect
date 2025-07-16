@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Post\" />
     <Folder Include="wwwroot\images\stories\" />
   </ItemGroup>
 
