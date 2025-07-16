@@ -1,6 +1,8 @@
 using Connect.DataAccess.Data;
-using Connect.Utilities.Service.IService;
+using Connect.DataAccess.Repository;
+using Connect.DataAccess.Repository.IRepository;
 using Connect.Utilities.Service;
+using Connect.Utilities.Service.IService;
 using Microsoft.EntityFrameworkCore;
 
 namespace Connect
@@ -17,7 +19,7 @@ namespace Connect
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(dbConnectionString));
             builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             var app = builder.Build();
 
 
