@@ -280,5 +280,31 @@ namespace Connect.Controllers
         }
 
 
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(int commentId)
+        {
+
+            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            try
+            {
+                var comment = await _context.Comments.FindAsync(commentId);
+                if (comment == null || comment.UserId != userId)
+                {
+                    return NotFound();
+                }
+                _context.Comments.Remove(comment);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Comment deleted successfully!";
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while deleting the comment.");
+            }
+            return RedirectToAction("Index", "Home");
+
+        }
+
+
     }
 }
