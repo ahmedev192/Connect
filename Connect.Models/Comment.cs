@@ -12,8 +12,8 @@ namespace Connect.Models
         public int Id { get; set; }
 
         public string Content { get; set; }
-        public DateTime DateCreated { get; set; }
-        public DateTime DateUpdated { get; set; }
+        public DateTime DateCreated { get; set; } = DateTime.Now;
+        public DateTime DateUpdated { get; set; }= DateTime.Now;
 
         //Foreign keys
         public int PostId { get; set; }

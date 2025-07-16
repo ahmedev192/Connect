@@ -15,7 +15,7 @@ namespace Connect.Models
         public int NrOfReports { get; set; }
         public bool IsPrivate { get; set; }  = false;
         public DateTime DateCreated { get; set; } = DateTime.Now; 
-        public DateTime DateUpdated { get; set; }
+        public DateTime DateUpdated { get; set; } = DateTime.Now;
 
         public int UserId { get; set; }
         [ValidateNever]

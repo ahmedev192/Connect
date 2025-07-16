@@ -10,7 +10,7 @@ namespace Connect.Models
     public class Favorite
     {
         public int Id { get; set; }
-        public DateTime DateCreated { get; set; }
+        public DateTime DateCreated { get; set; } = DateTime.Now;
 
         public int PostId { get; set; }
         public int UserId { get; set; }

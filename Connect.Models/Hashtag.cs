@@ -11,7 +11,7 @@ namespace Connect.Models
         public int Id { get; set; }
         public string Name { get; set; } 
         public int Count { get; set; }
-        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
-        public DateTime DateUpdated { get; set; } = DateTime.UtcNow;
+        public DateTime DateCreated { get; set; } = DateTime.Now;
+        public DateTime DateUpdated { get; set; } = DateTime.Now;
     }
 }

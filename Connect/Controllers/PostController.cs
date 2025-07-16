@@ -359,5 +359,28 @@ namespace Connect.Controllers
         }
 
 
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllFavoritePosts()
+        {
+            int userId = 1;
+            var favoritePosts = await _context.Favorites
+              .Where(f => f.UserId == userId)
+              .Select(f => f.Post)
+              .Where(p =>  p.Reports.Count < 5)
+              .Include(p => p.User)
+              .Include(p => p.Likes)
+              .Include(p => p.Comments)
+                  .ThenInclude(c => c.User)
+              .ToListAsync();
+            return View(favoritePosts);
+
+        }
+
+
+
+
     }
 }

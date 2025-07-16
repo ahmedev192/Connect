@@ -14,6 +14,8 @@ namespace Connect.Models
         public int PostId { get; set; }
         public int UserId { get; set; }
 
+        public DateTime DateCreated { get; set; } = DateTime.Now;
+
         // Navigation properties
         [ValidateNever]
         public Post Post { get; set; }
