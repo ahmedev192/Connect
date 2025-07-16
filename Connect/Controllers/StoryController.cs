@@ -16,11 +16,7 @@ namespace Connect.Controllers
             _context = context;
             _fileUploadService = fileUploadService;
         }
-        public async Task<IActionResult> Index()
-        {
-            var allStories = await _context.Stories.Include(s => s.User).ToListAsync();
-            return View(allStories);
-        }
+
 
 
 
@@ -41,9 +37,7 @@ namespace Connect.Controllers
 
                     await _context.Stories.AddAsync(story);
                     await _context.SaveChangesAsync();
-                    _context.Add(story);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index" , "Home");
 
                 }
                 else

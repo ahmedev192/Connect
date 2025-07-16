@@ -24,8 +24,8 @@
 	@* Post heading *@
 	<div class="gap-3 p-2.5 flex text-sm font-medium sm:p-4">
 		<a>
-			<img src="@( string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? Url.Content("/images/avatar/user.png") : Model.User.ProfilePictureUrl )"
-				 onerror="this.onerror=null; this.src='@Url.Content("/images/avatar/user.png")';"
+			<img src="@( string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? Url.Content("/images/avatars/user.png") : Model.User.ProfilePictureUrl )"
+				 onerror="this.onerror=null; this.src='@Url.Content("/images/avatars/user.png")';"
 				 class="w-9 h-9 rounded-full" />
 		</a>
 		<div class="flex-1">
@@ -76,7 +76,7 @@
 		</div>
 	</a>
 
-	@if (string.IsNullOrEmpty(Model.ImageUrl))
+	@if (!string.IsNullOrEmpty(Model.ImageUrl))
 	{
 		<a>
 			@{
@@ -185,7 +185,7 @@
 
 				<div class="gap-3 relative flex items-start">
 					<a>
-						<img src="@(comment.User.ProfilePictureUrl ?? "/images/avatar/user.png")" class="w-6 h-6 mt-1 rounded-full" />
+						<img src="@(comment.User.ProfilePictureUrl ?? "/images/avatars/user.png")" class="w-6 h-6 mt-1 rounded-full" />
 					</a>
 					<div class="flex-1">
 						<div class="justify-content-between flex">
@@ -225,7 +225,7 @@
 		<form asp-controller="Post" asp-action="AddPostComment">
 
 			<div class="p-2.5 border-gray-100 gap-1 flex items-center border-t sm:px-4 sm:py-3">
-				<img src="/images/avatar/user.png" class="w-6 h-6 rounded-full" />
+				<img src="/images/avatars/user.png" class="w-6 h-6 rounded-full" />
 
 				<input type="hidden" name="postId" value="@Model.Id" />
 				<div class="h-10 relative flex-1 overflow-hidden">
@@ -239,5 +239,4 @@
 		</form>
 	</div>
 </div>
-
 

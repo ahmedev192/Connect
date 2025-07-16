@@ -11,7 +11,7 @@ namespace Connect.Models
     {
         public int Id { get; set; }
         public string? ImageUrl { get; set; }
-        public DateTime DateCreated { get; set; }
+        public DateTime DateCreated { get; set; } = DateTime.Now; 
         public bool IsDeleted { get; set; } = false;
 
         // Foreign key
