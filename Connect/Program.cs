@@ -21,6 +21,8 @@ namespace Connect
             builder.Services.AddScoped<IFileUploadService, FileUploadService>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IHashtagService, HashtagService>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
+
 
             var app = builder.Build();
 

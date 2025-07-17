@@ -50,7 +50,7 @@ namespace Connect.Controllers
                         return View(post);
                     }
 
-                    string? imageUrl = await _fileUploadService.SavePostImageAsync(file, "posts");
+                    string? imageUrl = await _fileUploadService.SaveImageAsync(file, "posts");
 
                     post.UserId = userId;
                     post.ImageUrl = imageUrl ?? "";
@@ -289,7 +289,8 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> DeletePost(int postId)
         {
-            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            int userId = 1; // Replace with actual user ID from auth context
+
             try
             {
                 var post = await _context.Posts.FindAsync(postId);
@@ -298,7 +299,13 @@ namespace Connect.Controllers
                     return NotFound();
                 }
 
-                //Update hashtags
+                //  Delete post image from server
+                if (!string.IsNullOrEmpty(post.ImageUrl))
+                {
+                    await _fileUploadService.DeleteImageAsync(post.ImageUrl);
+                }
+
+                //  Update hashtag counts
                 var postHashtags = _hashtagService.ExtractHashtags(post.Content);
                 foreach (var hashtag in postHashtags)
                 {
@@ -312,23 +319,28 @@ namespace Connect.Controllers
                         await _context.SaveChangesAsync();
                     }
                 }
-                // Remove associated likes, comments, and favorites
+
+                //  Remove associated entities
                 var associatedLikes = _context.Likes.Where(l => l.PostId == postId);
                 var associatedFavorites = _context.Favorites.Where(f => f.PostId == postId);
                 var associatedReports = _context.Reports.Where(r => r.PostId == postId);
                 var associatedComments = _context.Comments.Where(c => c.PostId == postId);
+
                 _context.Likes.RemoveRange(associatedLikes);
                 _context.Favorites.RemoveRange(associatedFavorites);
                 _context.Reports.RemoveRange(associatedReports);
                 _context.Comments.RemoveRange(associatedComments);
+
                 _context.Posts.Remove(post);
                 await _context.SaveChangesAsync();
+
                 TempData["Success"] = "Post deleted successfully!";
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "An error occurred while deleting the post.");
             }
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -368,7 +380,7 @@ namespace Connect.Controllers
             int userId = 1;
             var favoritePosts = await _context.Favorites
               .Where(f => f.UserId == userId).Include(u => u.User).Include(m => m.Post).ToListAsync();
-              
+
             return View(favoritePosts);
 
         }

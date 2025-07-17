@@ -5,7 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Service\IService\IFileUpload.cs" />
+  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.App" Version="8.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Connect.DataAccess\Connect.DataAccess.csproj" />
+	  <ProjectReference Include="..\Connect.Models\Connect.Models.csproj" />
 	</ItemGroup>
 </Project>

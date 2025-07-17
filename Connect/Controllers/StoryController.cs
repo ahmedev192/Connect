@@ -30,7 +30,7 @@ namespace Connect.Controllers
                 if (ModelState.IsValid)
                 {
 
-                    string? imageUrl = await _fileUploadService.SavePostImageAsync(file, "stories");
+                    string? imageUrl = await _fileUploadService.SaveImageAsync(file, "stories");
 
                     story.UserId = userId;
                     story.ImageUrl = imageUrl ?? "";
