@@ -1,8 +1,11 @@
 using Connect.DataAccess.Data;
 using Connect.DataAccess.Repository;
 using Connect.DataAccess.Repository.IRepository;
+using Connect.Models;
 using Connect.Utilities.Service;
 using Connect.Utilities.Service.IService;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Connect
@@ -24,8 +27,35 @@ namespace Connect
             builder.Services.AddScoped<IUsersService, UsersService>();
 
 
+
+
+   
+            builder.Services.AddRazorPages();
+            builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+            builder.Services
+                .AddIdentity<User, IdentityRole<int>>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization();
+
+
+            //builder.Services.ConfigureApplicationCookie(options => {
+            //    options.LoginPath = $"/Identity/Account/Login";
+            //    options.LogoutPath = $"/Identity/Account/Logout";
+            //    options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+            //});
+
+
             var app = builder.Build();
 
+            app.UseAuthentication();
+            app.MapRazorPages();
 
             //bad code,  it's not supporting the migrations and not compatable with EF
 
@@ -45,6 +75,10 @@ namespace Connect
 
                 try
                 {
+                    var userManager = services.GetRequiredService<UserManager<User>>();
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+                    await DbInitializer.SeedUsersAndRolesAsync(userManager, roleManager);
+
                     var dbContext = services.GetRequiredService<ApplicationDbContext>();
                     var logger = services.GetRequiredService<ILogger<Program>>();
 
@@ -53,6 +87,9 @@ namespace Connect
 
                     logger.LogInformation("Seeding database...");
                     await DbInitializer.SeedAsync(dbContext, logger);
+
+
+               
                 }
                 catch (Exception ex)
                 {

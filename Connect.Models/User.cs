@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Connect.Models
 {
-    public class User
+    public class User : IdentityUser<int>
     {
-        public int Id { get; set; }
         public string FullName { get; set; }
         public string? ProfilePictureUrl { get; set; }
 
