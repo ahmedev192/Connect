@@ -38,7 +38,8 @@
 				{
 					@foreach (var post in Model)
 					{
-						@await Html.PartialAsync("../Shared/_Post", post)
+						<partial name="_Post" model="post" view-data='new ViewDataDictionary(ViewData) { { "ShowAllComment", false } }' />
+
 
 
 					}

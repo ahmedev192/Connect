@@ -15,6 +15,10 @@
 	bool isFavorited = Model.Favorites.Any(n => n.UserId == 1);
 	bool isLiked = Model.Likes.Any(n => n.UserId == 1);
 	bool isReported = Model.Reports.Any(n => n.UserId == 1);
+	string defaultUserPicture = "/images/avatars/user.png";
+
+	bool showAllComments = ViewData["ShowAllComment"] as bool? ?? false;
+
 
 
 }
@@ -24,8 +28,8 @@
 	@* Post heading *@
 	<div class="gap-3 p-2.5 flex text-sm font-medium sm:p-4">
 		<a>
-			<img src="@( string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? Url.Content("/images/avatars/user.png") : Model.User.ProfilePictureUrl )"
-				 onerror="this.onerror=null; this.src='@Url.Content("/images/avatars/user.png")';"
+			<img src="@( string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? Url.Content(defaultUserPicture) : Model.User.ProfilePictureUrl )"
+				 onerror="this.onerror=null; this.src='@Url.Content(defaultUserPicture)';"
 				 class="w-9 h-9 rounded-full" />
 		</a>
 		<div class="flex-1">
@@ -48,27 +52,28 @@
 					</form>
 
 					<hr>
-                   <button type="button" onclick="openPostDeleteConfirmation('@Model.Id')" class="text-red-400 delete-post-btn hover:!bg-red-50">
-                        <ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
-                    </button>
+					<button type="button" onclick="openPostDeleteConfirmation('@Model.Id')" class="text-red-400 delete-post-btn hover:!bg-red-50">
+						<ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
+					</button>
 				}
 				@if (!isReported)
 				{
 					<form asp-controller="Post" asp-action="AddPostReport">
-						<input type="hidden" name="postId" value="@Model.Id"/>
+						<input type="hidden" name="postId" value="@Model.Id" />
 						<button type="submit" class="icon-link hover:!bg-red-50">
 							<ion-icon class="shrink-0 text-xl" name="flag-outline"></ion-icon>  Report
 						</button>
 					</form>
 				}
-			
+
 
 			</div>
 		</div>
 	</div>
 
 	@* Post content *@
-	<a>
+	<a asp-controller="Post" asp-action="Details" asp-route-postId="@Model.Id">
+
 		<div class="p-2.5 pt-0 w-full sm:px-4">
 			<p class="font-normal">
 				@Model.Content
@@ -78,7 +83,8 @@
 
 	@if (!string.IsNullOrEmpty(Model.ImageUrl))
 	{
-		<a>
+		<a asp-controller="Post" asp-action="Details" asp-route-postId="@Model.Id">
+
 			@{
 				var fallbackImage = Url.Content("/images/placeholders/post-placeholder.jpg");
 			}
@@ -135,34 +141,7 @@
 			}
 		</div>
 
-
-
-
-
-
-
-
-
-
-
 	</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -171,7 +150,9 @@
 
 		<div class="p-2.5 border-gray-100 space-y-3 relative border-t font-normal">
 
-			@foreach (var comment in Model.Comments.OrderByDescending(n => n.DateCreated).Take(3))
+			@foreach (var comment in showAllComments
+						? Model.Comments.OrderByDescending(n => n.DateCreated)
+						: Model.Comments.OrderByDescending(n => n.DateCreated).Take(2))
 			{
 				TimeSpan commentTimeSpanSincePosted = DateTime.UtcNow.Subtract(comment.DateCreated);
 
@@ -185,7 +166,7 @@
 
 				<div class="gap-3 relative flex items-start">
 					<a>
-						<img src="@(comment.User.ProfilePictureUrl ?? "/images/avatars/user.png")" class="w-6 h-6 mt-1 rounded-full" />
+						<img src="@(comment.User.ProfilePictureUrl ?? defaultUserPicture)" class="w-6 h-6 mt-1 rounded-full" />
 					</a>
 					<div class="flex-1">
 						<div class="justify-content-between flex">
@@ -211,10 +192,12 @@
 				</div>
 			}
 
-			@if (Model.Comments.Count >= 3)
+			@if (Model.Comments.Count >= 3 && !showAllComments)
+
 			{
 				<div class="p-1.5">
-					<a>
+					<a asp-controller="Post" asp-action="Details" asp-route-postId="@Model.Id">
+
 						Show all comments
 					</a>
 				</div>
@@ -225,7 +208,7 @@
 		<form asp-controller="Post" asp-action="AddPostComment">
 
 			<div class="p-2.5 border-gray-100 gap-1 flex items-center border-t sm:px-4 sm:py-3">
-				<img src="/images/avatars/user.png" class="w-6 h-6 rounded-full" />
+				<img src="@defaultUserPicture" class="w-6 h-6 rounded-full" />
 
 				<input type="hidden" name="postId" value="@Model.Id" />
 				<div class="h-10 relative flex-1 overflow-hidden">

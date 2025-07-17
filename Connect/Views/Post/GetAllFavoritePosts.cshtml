@@ -16,7 +16,7 @@
                 {
                     @foreach (var favorite in Model)
                     {
-                        <partial name="_Post" model="favorite.Post" />
+                        <partial name="_Post" model="favorite.Post" view-data='new ViewDataDictionary(ViewData) { { "ShowAllComment", false } }' />
                     }
                 }
             </div>

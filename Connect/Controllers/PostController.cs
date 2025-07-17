@@ -224,11 +224,6 @@ namespace Connect.Controllers
         }
 
 
-
-
-
-
-
         [HttpPost]
         public async Task<IActionResult> ToggleVisability(int postId)
         {
@@ -371,9 +366,6 @@ namespace Connect.Controllers
         }
 
 
-
-
-
         [HttpGet]
         public async Task<IActionResult> GetAllFavoritePosts()
         {
@@ -382,6 +374,24 @@ namespace Connect.Controllers
               .Where(f => f.UserId == userId).Include(u => u.User).Include(m => m.Post).ToListAsync();
 
             return View(favoritePosts);
+
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int postId)
+        {
+            var post = await _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Likes)
+                .Include(p => p.Comments)
+                .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+            if (post == null)
+            {
+                return NotFound();
+            }
+            return View(post);
 
         }
 
