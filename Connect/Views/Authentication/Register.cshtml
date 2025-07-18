@@ -1,0 +1,120 @@
+﻿@model UserViewModel;
+
+<div class="sm:flex">
+	@*form section*@
+	<div class="p-10 bg-white pt-10 relative z-10 flex min-h-screen w-full items-center shadow-xl md:w-96 lg:w-[580px]">
+
+		<div class="space-y-10 mx-auto w-full lg:max-w-sm">
+
+			<div>
+				<h2 class="mb-1.5 text-2xl font-semibold">Sign up to get started</h2>
+				<p class="text-gray-700 text-sm font-normal">If you already have an account, <a asp-controller="Authentication" asp-action="Login" class="text-blue-700">Login here!</a></p>
+			</div>
+
+			<form asp-controller="Authentication" asp-action="Register" method="post" class="space-y-7 text-black text-sm font-medium">
+				<div asp-validation-summary="ModelOnly" class="text-red-500 mb-2 text-sm"></div>
+
+				<div class="gap-4 gap-y-7 grid grid-cols-2">
+					<div>
+						<label asp-for="FirstName">First name</label>
+						<div class="mt-2.5">
+							<input id="firstName" asp-for="FirstName" class="!w-full" />
+							<span asp-validation-for="FirstName" class="text-red-500 text-xs"></span>
+						</div>
+					</div>
+
+					<div>
+						<label asp-for="LastName">Last name</label>
+						<div class="mt-2.5">
+							<input asp-for="LastName" id="lastName" class="!w-full" />
+							<span asp-validation-for="LastName" class="text-red-500 text-xs"></span>
+						</div>
+					</div>
+
+					<div class="col-span-2">
+						<label asp-for="Email">Email address</label>
+						<div class="mt-2.5">
+							<input asp-for="Email" id="email" type="email" class="!w-full" />
+							<span asp-validation-for="Email" class="text-red-500 text-xs"></span>
+						</div>
+					</div>
+
+					<div>
+						<label asp-for="Password">Password</label>
+						<div class="mt-2.5">
+							<input asp-for="Password" id="password" type="password" class="!w-full" />
+							<span asp-validation-for="Password" class="text-red-500 text-xs"></span>
+						</div>
+					</div>
+
+					<div>
+						<label asp-for="ConfirmPassword">Confirm password</label>
+						<div class="mt-2.5">
+							<input asp-for="ConfirmPassword" id="confirmPassword" type="password" class="!w-full" />
+							<span asp-validation-for="ConfirmPassword" class="text-red-500 text-xs"></span>
+						</div>
+					</div>
+
+					<div class="col-span-2">
+						<button type="submit" class="button bg-primary text-white w-full">Register</button>
+					</div>
+				</div>
+
+				<div class="gap-6 flex items-center text-center">
+					<hr class="border-slate-200 flex-1">
+					Or continue with
+					<hr class="border-slate-200 flex-1">
+				</div>
+
+				<div class="gap-2 flex">
+					<a href="#" class="button gap-2 bg-primary text-white flex flex-1 items-center text-sm">
+						<ion-icon name="logo-google" class="text-lg"></ion-icon> google
+					</a>
+					<a href="#" class="button gap-2 bg-black text-white flex flex-1 items-center text-sm">
+						<ion-icon name="logo-github" class="text-lg"></ion-icon> github
+					</a>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	@*image slider*@
+	<div class="bg-primary relative flex-1 max-md:hidden">
+		<div class="relative h-full w-full" tabindex="-1" uk-slideshow="animation: slide; autoplay: true">
+
+			<ul class="uk-slideshow-items h-full w-full">
+				<li class="w-full">
+					<img src="~/images/welcome/Dizisnta Author Portfolio _ Freepik.jpg" alt="" class="uk-animation-kenburns uk-animation-reverse uk-transform-origin-center-left h-full w-full object-cover">
+
+					<div class="bottom-0 uk-transition-slide-bottom-small absolute z-10 w-full">
+						<div class="pb-32 px-5 relative z-30 mx-auto w-full max-w-xl">
+							<h4 class="!text-white mt-7 text-2xl font-semibold" uk-slideshow-parallax="y: 600,0,0">Connect with Friends</h4>
+							<p class="!text-white mt-7 text-lg leading-8" uk-slideshow-parallax="y: 800,0,0;">Bridge the gap between miles and moments—connect with friends and weave memories together, one click at a time.</p>
+						</div>
+					</div>
+					<div class="h-96 from-black bottom-0 left-0 absolute w-full bg-gradient-to-t"></div>
+				</li>
+				<li class="w-full">
+					<img src="~/images/welcome/15 Best Friendship Lessons for Kids.jpg" alt="" class="uk-animation-kenburns uk-animation-reverse uk-transform-origin-center-left h-full w-full object-cover">
+					<div class="bottom-0 uk-tr ansition-slide-bottom-small absolute z-10 w-full">
+						<div class="pb-32 px-5 relative z-30 mx-auto w-full max-w-xl">
+							<h4 class="!text-white mt-7 text-2xl font-semibold" uk-slideshow-parallax="y: 800,0,0">  Connect With Friends </h4>
+							<p class="!text-white mt-7 text-lg leading-8" uk-slideshow-parallax="y: 800,0,0;"> Rekindle old ties and spark new ones—your next 'Remember when...' moment is just a friend request away.</p>
+						</div>
+					</div>
+					<div class="h-96 from-black bottom-0 left-0 absolute w-full bg-gradient-to-t"></div>
+				</li>
+			</ul>
+
+			<!-- slide nav -->
+			<div class="flex justify-center">
+				<ul class="bottom-8 gap-1.5 uk-dotnav uk-slideshow-nav absolute inline-flex flex-wrap justify-center"> </ul>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}

@@ -36,10 +36,19 @@ namespace Connect
             builder.Services
                 .AddIdentity<User, IdentityRole<int>>(options =>
                 {
+                    // SignIn settings
                     options.SignIn.RequireConfirmedAccount = false;
+
+                    // Password settings
+                    options.Password.RequireDigit = false;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireUppercase = false;
+                    //options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequiredLength = 4;
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
 
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
