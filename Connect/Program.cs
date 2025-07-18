@@ -25,11 +25,7 @@ namespace Connect
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IHashtagService, HashtagService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
-            builder.Services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = "/Authentication/Login";
-                options.AccessDeniedPath = "/Authentication/AccessDenied";
-            });
+
 
 
 
@@ -53,7 +49,11 @@ namespace Connect
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Authentication/Login";
+                options.AccessDeniedPath = "/Authentication/AccessDenied";
+            });
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
@@ -95,7 +95,7 @@ namespace Connect
                     await DbInitializer.SeedAsync(dbContext, logger);
 
 
-               
+
                 }
                 catch (Exception ex)
                 {

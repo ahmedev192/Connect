@@ -1,6 +1,8 @@
-﻿using Connect.Models;
+﻿using System.Security.Claims;
+using Connect.Models;
 using Connect.Models.ViewModels;
 using Connect.Utilities.StaticDetails;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,6 +60,7 @@ namespace Connect.Controllers
             return View(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
@@ -88,6 +91,8 @@ namespace Connect.Controllers
 
             if (result.Succeeded)
             {
+                await _userManager.AddClaimAsync(user, new Claim("FullName", user.FullName));
+                await _userManager.AddClaimAsync(user, new Claim("UserName", user.UserName));
                 await _userManager.AddToRoleAsync(user, ApplicationRoles.User);
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Home");
