@@ -2,10 +2,12 @@
 using Connect.DataAccess.Data;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Connect.Controllers
 {
+    [Authorize]
     public class SettingController : Controller
     {
         private readonly IUsersService _usersService;

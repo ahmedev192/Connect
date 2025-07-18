@@ -1,11 +1,13 @@
 ﻿using Connect.DataAccess.Data;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Connect.Controllers
 {
+    [Authorize]
     public class StoryController : Controller
     {
         private readonly ApplicationDbContext _context;

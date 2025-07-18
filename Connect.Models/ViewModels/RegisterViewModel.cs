@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Connect.Models.ViewModels
 {
-    public class UserViewModel
+    public class RegisterViewModel
     {
         [Required(ErrorMessage = "First Name is required")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "First Name must be between 2 and 50 characters")]

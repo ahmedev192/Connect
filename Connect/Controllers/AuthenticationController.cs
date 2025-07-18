@@ -17,7 +17,8 @@ namespace Connect.Controllers
             _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> Login()
+        [HttpGet]
+        public IActionResult Login()
         {
             return View();
         }
@@ -28,9 +29,48 @@ namespace Connect.Controllers
             return View();
         }
 
+
+
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                return Redirect(returnUrl ?? "/"); // redirect to homepage or returnUrl
+            }
+
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login");
+        }
+
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(UserViewModel userViewModel)
+        public async Task<IActionResult> Register(RegisterViewModel userViewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -62,5 +102,11 @@ namespace Connect.Controllers
             return View(userViewModel);
         }
 
+
+
+    
+
     }
+
+
 }

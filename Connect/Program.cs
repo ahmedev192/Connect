@@ -25,11 +25,15 @@ namespace Connect
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IHashtagService, HashtagService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Authentication/Login";
+                options.AccessDeniedPath = "/Authentication/AccessDenied";
+            });
 
 
 
 
-   
             builder.Services.AddRazorPages();
             builder.Services.AddScoped<IEmailSender, EmailSender>();
 
@@ -54,11 +58,6 @@ namespace Connect
             builder.Services.AddAuthorization();
 
 
-            //builder.Services.ConfigureApplicationCookie(options => {
-            //    options.LoginPath = $"/Identity/Account/Login";
-            //    options.LogoutPath = $"/Identity/Account/Logout";
-            //    options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
-            //});
 
 
             var app = builder.Build();
@@ -91,10 +90,8 @@ namespace Connect
                     var dbContext = services.GetRequiredService<ApplicationDbContext>();
                     var logger = services.GetRequiredService<ILogger<Program>>();
 
-                    logger.LogInformation("Applying pending migrations...");
                     await dbContext.Database.MigrateAsync();
 
-                    logger.LogInformation("Seeding database...");
                     await DbInitializer.SeedAsync(dbContext, logger);
 
 
