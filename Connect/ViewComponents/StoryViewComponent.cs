@@ -26,7 +26,7 @@ namespace Connect.ViewComponents
                             .ToListAsync();
             foreach (var story in allStories)
             {
-                story.User.ProfilePictureUrl =await  _fileUploadService.ResolveImageOrDefault(story.User.ProfilePictureUrl);
+                story.User.ProfilePictureUrl =  _fileUploadService.ResolveImageOrDefault(story.User.ProfilePictureUrl, "/images/avatars/user.png");
             }
             return View(allStories);
         }

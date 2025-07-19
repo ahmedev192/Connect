@@ -67,12 +67,8 @@
 				</div>
 
 				<div class="gap-2 flex">
-					<a href="#" class="button gap-2 bg-primary text-white flex flex-1 items-center text-sm">
-						<ion-icon name="logo-google" class="text-lg"></ion-icon> google
-					</a>
-					<a href="#" class="button gap-2 bg-black text-white flex flex-1 items-center text-sm">
-						<ion-icon name="logo-github" class="text-lg"></ion-icon> github
-					</a>
+					<a asp-controller="Authentication" asp-action="ExternalLogin" asp-route-provider="Google" class="button gap-2 bg-primary text-white flex flex-1 items-center text-sm"> <ion-icon name="logo-google" class="text-lg"></ion-icon> google </a>
+					 <a asp-controller="Authentication" asp-action="ExternalLogin" asp-route-provider="GitHub" class="button gap-2 bg-black text-white flex flex-1 items-center text-sm"><ion-icon name="logo-github" class="text-lg"></ion-icon> github </a>
 				</div>
 			</form>
 		</div>

@@ -69,7 +69,7 @@ namespace Connect.Utilities.Service
             return Task.FromResult(false);
         }
 
-        public async Task <string> ResolveImageOrDefault(string? imageUrl, string? fallbackRelativePath= "/images/avatars/user.png")
+        public string ResolveImageOrDefault(string? imageUrl, string fallbackRelativePath)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
                 return fallbackRelativePath;

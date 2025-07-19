@@ -14,11 +14,12 @@ namespace Connect.Controllers
     {
         private readonly IUsersService _usersService;
         private readonly UserManager<User> _userManager;
-
-        public SettingController(IUsersService usersService, UserManager<User> userManager)
+        private readonly IFileUploadService _fileUploadService;
+        public SettingController(IUsersService usersService, UserManager<User> userManager , IFileUploadService fileUploadService)
         {
             _usersService = usersService;
             _userManager = userManager;
+            _fileUploadService = fileUploadService; 
         }
 
         public async Task<IActionResult> Index()
@@ -38,6 +39,8 @@ namespace Connect.Controllers
                 },
                 UpdatePassword = new UpdatePasswordViewModel()
             };
+
+            model.User.ProfilePictureUrl = _fileUploadService.ResolveImageOrDefault(model.User.ProfilePictureUrl, "/images/avatars/user.png");
 
             return View(model);
         }

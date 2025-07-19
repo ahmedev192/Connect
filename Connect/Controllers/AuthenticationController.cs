@@ -5,6 +5,7 @@ using Connect.Models;
 using Connect.Models.ViewModels;
 using Connect.Utilities.Service.IService;
 using Connect.Utilities.StaticDetails;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Connect.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class AuthenticationController : Controller
     {
         private readonly UserManager<User> _userManager;
@@ -93,8 +94,8 @@ namespace Connect.Controllers
 
             if (result.Succeeded)
             {
-                await _userManager.AddClaimAsync(user, new Claim("FullName", user.FullName));
-                await _userManager.AddClaimAsync(user, new Claim("UserName", user.UserName));
+                //await _userManager.AddClaimAsync(user, new Claim("FullName", user.FullName));
+                //await _userManager.AddClaimAsync(user, new Claim("UserName", user.UserName));
                 await _userManager.AddToRoleAsync(user, ApplicationRoles.User);
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Home");
@@ -110,6 +111,7 @@ namespace Connect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> UpdateProfile(SettingsViewModel model )
         {
             TempData["ActiveTab"] = "Profile";
@@ -202,6 +204,8 @@ namespace Connect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
+
         public async Task<IActionResult> UpdateProfilePicture(IFormFile file)
         {
             TempData["ActiveTab"] = "Profile";
@@ -254,6 +258,73 @@ namespace Connect.Controllers
             TempData["SuccessMessage"] = "Profile picture updated successfully.";
             return RedirectToAction("Index", "Setting");
         }
+
+
+
+        [AllowAnonymous]
+        public IActionResult ExternalLogin(string provider)
+        {
+            // Redirect to external login provider (e.g., Google)
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Authentication");
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback()
+        {
+            // Get the external login info (claims from Google, etc.)
+            var authResult = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
+
+            if (authResult?.Principal == null)
+                return RedirectToAction("Login");
+
+            var email = authResult.Principal.FindFirstValue(ClaimTypes.Email);
+            var fullName = authResult.Principal.FindFirstValue(ClaimTypes.Name);
+
+            if (string.IsNullOrEmpty(email))
+                return RedirectToAction("Login");
+
+            // Try to find existing user
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                // Create new user if they don’t exist
+                user = new User
+                {
+                    Email = email,
+                    UserName = email,
+                    FullName = fullName,
+                    EmailConfirmed = true
+                };
+
+                var createResult = await _userManager.CreateAsync(user);
+
+                if (!createResult.Succeeded)
+                {
+                    // You can log or show errors here
+                    return RedirectToAction("Login");
+                }
+
+                await _userManager.AddToRoleAsync(user, ApplicationRoles.User);
+            }
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            // Clear external cookie to prevent re-login issues
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+            return RedirectToAction("Index", "Home");
+        }
+
+
+
+
+
+
+
+
+
     }
 
 

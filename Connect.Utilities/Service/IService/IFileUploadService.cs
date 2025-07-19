@@ -11,6 +11,6 @@ namespace Connect.Utilities.Service.IService
     {
         Task<string?> SaveImageAsync(IFormFile file, string folderName );
         Task<bool> DeleteImageAsync(string imageUrl);
-        Task<string?> ResolveImageOrDefault(string? imageUrl,  string? fallbackRelativePath = "/images/avatars/user.png");
+        string ResolveImageOrDefault(string? imageUrl,  string fallbackRelativePath );
     }
 }

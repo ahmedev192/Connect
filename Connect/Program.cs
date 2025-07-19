@@ -4,6 +4,7 @@ using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Utilities.Service;
 using Connect.Utilities.Service.IService;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,7 @@ namespace Connect
                     options.Password.RequireUppercase = false;
                     //options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequiredLength = 4;
+
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -53,11 +55,26 @@ namespace Connect
             {
                 options.LoginPath = "/Authentication/Login";
                 options.AccessDeniedPath = "/Authentication/AccessDenied";
+
             });
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Auth:Google:ClientId"] ?? "";
+        options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"] ?? "";
+        options.CallbackPath = "/signin-google";
+        options.Scope.Add("profile");
 
+
+    }).AddGitHub(options =>
+    {
+        options.ClientId = builder.Configuration["Auth:GitHub:ClientId"] ?? "";
+        options.ClientSecret = builder.Configuration["Auth:GitHub:ClientSecret"] ?? "";
+        options.CallbackPath = "/signin-github";
+    });
 
 
             var app = builder.Build();
