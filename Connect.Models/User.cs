@@ -7,7 +7,7 @@ namespace Connect.Models
     {
         public string FullName { get; set; }
         public string? ProfilePictureUrl { get; set; }
-
+        public string? Bio { get; set; }
         public DateTime DateCreated { get; set; } = DateTime.Now;
         public bool IsDeleted { get; set; }
         // Navigation property for the one-to-many relationship

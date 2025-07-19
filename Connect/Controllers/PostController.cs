@@ -3,6 +3,7 @@ using Connect.Models;
 using Connect.Utilities.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,12 +16,14 @@ namespace Connect.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IFileUploadService _fileUploadService;
         private readonly IHashtagService _hashtagService;
+        private readonly UserManager<User> _userManager;
 
-        public PostController(ApplicationDbContext context, IFileUploadService fileUploadService, IHashtagService hashtagService)
+        public PostController(ApplicationDbContext context, IFileUploadService fileUploadService, IHashtagService hashtagService, UserManager<User> userManager)
         {
             _context = context;
             _fileUploadService = fileUploadService;
             _hashtagService = hashtagService;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -40,7 +43,13 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Post post, IFormFile? file)
         {
-            int userId = 1; // Temrary user ID, will be replaced with actual user ID from authentication context
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
 
             try
             {
@@ -114,7 +123,12 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostLike(int postId)
         {
-            int userId = 1; // Temrary user ID, will be replaced with actual user ID from authentication context
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
 
             try
             {
@@ -156,7 +170,16 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPostComment(Comment comment)
         {
-            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            if(!ModelState.IsValid )
+            {
+                return View(comment);
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
 
             comment.UserId = userId;
             comment.DateCreated = DateTime.UtcNow;
@@ -199,7 +222,12 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostFavorite(int postId)
         {
-            int userId = 1;
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
 
             //check if user has already favorited the post
             var favorite = await _context.Favorites
@@ -229,7 +257,12 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleVisability(int postId)
         {
-            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
             try
             {
                 var post = await _context.Posts.FindAsync(postId);
@@ -254,7 +287,12 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPostReport(int postId)
         {
-            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
             try
             {
                 var existingReport = await _context.Reports
@@ -286,7 +324,12 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> DeletePost(int postId)
         {
-            int userId = 1; // Replace with actual user ID from auth context
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
 
             try
             {
@@ -347,7 +390,12 @@ namespace Connect.Controllers
         public async Task<IActionResult> DeleteComment(int commentId)
         {
 
-            int userId = 1; // Temporary user ID, will be replaced with actual user ID from authentication context
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
             try
             {
                 var comment = await _context.Comments.FindAsync(commentId);
@@ -371,7 +419,12 @@ namespace Connect.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllFavoritePosts()
         {
-            int userId = 1;
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
             var favoritePosts = await _context.Favorites
               .Where(f => f.UserId == userId).Include(u => u.User).Include(m => m.Post).ToListAsync();
 

@@ -69,6 +69,16 @@ namespace Connect.Utilities.Service
             return Task.FromResult(false);
         }
 
+        public async Task <string> ResolveImageOrDefault(string? imageUrl, string? fallbackRelativePath= "/images/avatars/user.png")
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                return fallbackRelativePath;
+
+            string absolutePath = Path.Combine(_env.WebRootPath, imageUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+            return File.Exists(absolutePath) ? imageUrl : fallbackRelativePath;
+        }
+
+
     }
 
 }

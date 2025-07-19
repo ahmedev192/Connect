@@ -2,6 +2,7 @@
 using Connect.Models;
 using Connect.Utilities.Service.IService;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +13,12 @@ namespace Connect.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IFileUploadService _fileUploadService;
-
-        public StoryController(ApplicationDbContext context, IFileUploadService fileUploadService)
+        private readonly UserManager<User> _userManager; 
+        public StoryController(ApplicationDbContext context, IFileUploadService fileUploadService , UserManager<User> userManager)
         {
             _context = context;
             _fileUploadService = fileUploadService;
+            _userManager = userManager;
         }
 
 
@@ -26,7 +28,12 @@ namespace Connect.Controllers
         public async Task<IActionResult> CreateStory(Story story, IFormFile file)
         {
 
-            int userId = 1; // Temrary user ID, will be replaced with actual user ID from authentication context
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            int userId = user.Id;
             try
             {
                 if (ModelState.IsValid)

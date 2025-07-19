@@ -1,5 +1,6 @@
-﻿@model Post
-
+﻿@using Microsoft.AspNetCore.Identity
+@model Post
+@inject UserManager<User> userManager ;
 @{
 	TimeSpan timeSpanSincePosted = DateTime.UtcNow.Subtract(Model.DateCreated);
 
@@ -10,12 +11,12 @@
 		var t when t.TotalMinutes >= 1 => $"{(int)t.TotalMinutes}m ago",
 		_ => "Just now"
 	};
+	var currentUser = userManager.GetUserAsync(User);
+	int currentUserId = currentUser.Result.Id;
 
-
-	bool isFavorited = Model.Favorites.Any(n => n.UserId == 1);
-	bool isLiked = Model.Likes.Any(n => n.UserId == 1);
-	bool isReported = Model.Reports.Any(n => n.UserId == 1);
-	string defaultUserPicture = "/images/avatars/user.png";
+	bool isFavorited = Model.Favorites.Any(n => n.UserId == currentUserId);
+	bool isLiked = Model.Likes.Any(n => n.UserId == currentUserId);
+	bool isReported = Model.Reports.Any(n => n.UserId == currentUserId);
 
 	bool showAllComments = ViewData["ShowAllComment"] as bool? ?? false;
 
@@ -28,8 +29,8 @@
 	@* Post heading *@
 	<div class="gap-3 p-2.5 flex text-sm font-medium sm:p-4">
 		<a>
-			<img src="@( string.IsNullOrEmpty(Model.User.ProfilePictureUrl) ? Url.Content(defaultUserPicture) : Model.User.ProfilePictureUrl )"
-				 onerror="this.onerror=null; this.src='@Url.Content(defaultUserPicture)';"
+			<img src="@Model.User.ProfilePictureUrl"
+				 
 				 class="w-9 h-9 rounded-full" />
 		</a>
 		<div class="flex-1">
@@ -42,7 +43,7 @@
 		<div class="-mr-1">
 			<button type="button" class="button-icon w-8 h-8"> <ion-icon class="text-xl" name="ellipsis-horizontal"></ion-icon> </button>
 			<div class="post-options-dropdown w-[245px]" uk-dropdown="pos: bottom-right; animation: uk-animation-scale-up uk-transform-origin-top-right; animate-out: true; mode: click">
-				@if (Model.UserId == 1)
+				@if (Model.UserId == currentUserId)
 				{
 					<form asp-controller="post" asp-action="ToggleVisability">
 						<input type="hidden" name="postId" value="@Model.Id" />
@@ -85,12 +86,9 @@
 	{
 		<a asp-controller="Post" asp-action="Details" asp-route-postId="@Model.Id">
 
-			@{
-				var fallbackImage = Url.Content("/images/placeholders/post-placeholder.jpg");
-			}
+
 			<div class="relative h-full w-full sm:px-4 lg:h-96">
-				<img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? fallbackImage : Model.ImageUrl)"
-					 onerror="this.onerror=null; this.src='@fallbackImage';"
+				<img src="@Model.ImageUrl"
 					 @* class="w-9 h-9 rounded-full" *@ />
 			</div>
 
@@ -166,7 +164,7 @@
 
 				<div class="gap-3 relative flex items-start">
 					<a>
-						<img src="@(comment.User.ProfilePictureUrl ?? defaultUserPicture)" class="w-6 h-6 mt-1 rounded-full" />
+						<img src="@(comment.User.ProfilePictureUrl )" class="w-6 h-6 mt-1 rounded-full" />
 					</a>
 					<div class="flex-1">
 						<div class="justify-content-between flex">
@@ -208,7 +206,7 @@
 		<form asp-controller="Post" asp-action="AddPostComment">
 
 			<div class="p-2.5 border-gray-100 gap-1 flex items-center border-t sm:px-4 sm:py-3">
-				<img src="@defaultUserPicture" class="w-6 h-6 rounded-full" />
+				<img src="@Model.User.ProfilePictureUrl" class="w-6 h-6 rounded-full" />
 
 				<input type="hidden" name="postId" value="@Model.Id" />
 				<div class="h-10 relative flex-1 overflow-hidden">
@@ -223,3 +221,9 @@
 	</div>
 </div>
 
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}
