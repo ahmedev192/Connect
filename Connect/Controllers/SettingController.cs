@@ -42,6 +42,8 @@ namespace Connect.Controllers
 
             model.User.ProfilePictureUrl = _fileUploadService.ResolveImageOrDefault(model.User.ProfilePictureUrl, "/images/avatars/user.png");
 
+            
+
             return View(model);
         }
     }

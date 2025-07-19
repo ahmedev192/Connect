@@ -26,6 +26,7 @@ namespace Connect
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IHashtagService, HashtagService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
+            builder.Services.AddScoped<IPostService, PostService>();
 
 
 

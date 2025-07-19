@@ -17,13 +17,17 @@ namespace Connect.Controllers
         private readonly IFileUploadService _fileUploadService;
         private readonly IHashtagService _hashtagService;
         private readonly UserManager<User> _userManager;
+        private readonly IUsersService _userService;
+        private readonly IPostService _postService;
 
-        public PostController(ApplicationDbContext context, IFileUploadService fileUploadService, IHashtagService hashtagService, UserManager<User> userManager)
+        public PostController(ApplicationDbContext context, IFileUploadService fileUploadService, IHashtagService hashtagService, UserManager<User> userManager, IUsersService usersService, IPostService postService)
         {
             _context = context;
             _fileUploadService = fileUploadService;
             _hashtagService = hashtagService;
             _userManager = userManager;
+            _userService = usersService;
+            _postService = postService;
         }
 
         public IActionResult Index()
@@ -170,7 +174,7 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPostComment(Comment comment)
         {
-            if(!ModelState.IsValid )
+            if (!ModelState.IsValid)
             {
                 return View(comment);
             }
@@ -434,18 +438,9 @@ namespace Connect.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Details(int postId)
+        public async Task<IActionResult> PostDetails(int postId)
         {
-            var post = await _context.Posts
-                .Include(p => p.User)
-                .Include(p => p.Likes)
-                .Include(p => p.Comments)
-                .ThenInclude(c => c.User)
-                .FirstOrDefaultAsync(p => p.Id == postId);
-            if (post == null)
-            {
-                return NotFound();
-            }
+            var post = await  _postService.GetPostById(postId);
             return View(post);
 
         }

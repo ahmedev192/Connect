@@ -13,14 +13,40 @@ namespace Connect.Utilities.Service
     public class UsersService : IUsersService
     {
         private readonly ApplicationDbContext _context;
-        public UsersService(ApplicationDbContext context)
+        private readonly IFileUploadService _fileUploadService;
+        private readonly IPostService _postService;
+        public UsersService(ApplicationDbContext context, IFileUploadService fileUploadService, IPostService postService)
         {
             _context = context;
+            _fileUploadService = fileUploadService;
+            _postService = postService;
         }
 
         public async Task<User> GetUser(int loggedInUserId)
         {
             return await _context.Users.FirstOrDefaultAsync(n => n.Id == loggedInUserId) ?? new User();
         }
+
+
+        public async Task<List<Post>> GetPostsByUserId(int userId)
+        {
+            var posts = await _context.Posts
+                .Where(p => p.UserId == userId && p.Reports.Count < 5)
+                .OrderByDescending(p => p.DateCreated)
+                .IncludeAllPostData()
+                .ToListAsync();
+
+            return await _postService.ProcessPosts(posts);
+        }
+
+   
+
+       
+
+
+
+
+
     }
+
 }
