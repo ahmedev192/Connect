@@ -29,6 +29,8 @@ namespace Connect
             builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<IFriendService, FriendService>();
+
 
 
 

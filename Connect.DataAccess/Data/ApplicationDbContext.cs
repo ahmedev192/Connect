@@ -20,7 +20,8 @@ namespace Connect.DataAccess.Data
         public DbSet<Report> Reports { get; set; }
         public DbSet<Story> Stories { get; set; }
         public DbSet<Hashtag> Hashtags { get; set; }
-
+        public DbSet<FriendRequest> FriendRequests { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
 
 
 
@@ -38,8 +39,8 @@ namespace Connect.DataAccess.Data
             modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
             modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
 
-            //Posts
 
+            //Posts
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Posts)
@@ -61,8 +62,8 @@ namespace Connect.DataAccess.Data
                 .HasForeignKey(l => l.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            //Comments
 
+            //Comments
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Post)
                 .WithMany(p => p.Comments)
@@ -93,6 +94,7 @@ namespace Connect.DataAccess.Data
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            
             //Reports
             modelBuilder.Entity<Report>()
                 .HasKey(f => new { f.PostId, f.UserId });
@@ -111,10 +113,50 @@ namespace Connect.DataAccess.Data
 
 
             modelBuilder.Entity<User>()
-       .HasMany(u => u.Stories)
-       .WithOne(p => p.User)
-       .HasForeignKey(p => p.UserId);
+               .HasMany(u => u.Stories)
+               .WithOne(p => p.User)
+               .HasForeignKey(p => p.UserId);
 
+
+
+            //Friendship configurations
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(fr => fr.Sender)
+                .WithMany()
+                .HasForeignKey(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<FriendRequest>()
+                .HasOne(fr => fr.Receiver)
+                .WithMany()
+                .HasForeignKey(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Friendship>()
+                .HasOne(fr => fr.Sender)
+                .WithMany()
+                .HasForeignKey(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Friendship>()
+                .HasOne(fr => fr.Receiver)
+                .WithMany()
+                .HasForeignKey(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.Cascade);
+           
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             //modelBuilder.Entity<User>().HasData(
             //new User
             //{
