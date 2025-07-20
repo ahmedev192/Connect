@@ -71,7 +71,7 @@ namespace Connect.Utilities.Service
 
         public string ResolveImageOrDefault(string? imageUrl, string fallbackRelativePath)
         {
-            if (string.IsNullOrWhiteSpace(imageUrl))
+            if (string.IsNullOrEmpty(imageUrl))
                 return fallbackRelativePath;
 
             string absolutePath = Path.Combine(_env.WebRootPath, imageUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));

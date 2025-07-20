@@ -40,10 +40,14 @@ namespace Connect.Utilities.Service
 
             foreach (var post in posts)
             {
-                post.ImageUrl = _fileUploadService.ResolveImageOrDefault(
-                    post.ImageUrl,
-                    "/images/placeholders/post-placeholder.jpg"
-                );
+                if (!string.IsNullOrEmpty(post.ImageUrl))
+                {
+                    post.ImageUrl = _fileUploadService.ResolveImageOrDefault(
+                        post.ImageUrl,
+                        "/images/placeholders/post-placeholder.jpg"
+                    );
+
+                }
 
                 if (post.User != null)
                 {

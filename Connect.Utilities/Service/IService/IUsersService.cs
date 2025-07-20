@@ -10,7 +10,7 @@ namespace Connect.Utilities.Service.IService
     public interface IUsersService
     {
         Task<User> GetUser(int loggedInUserId);
-        Task<List<Post>> GetPostsByUserId(int userId);
+        Task<List<Post>> GetPostsByUserId(int userId = 0 );
 
 
     }

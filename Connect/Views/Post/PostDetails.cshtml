@@ -9,3 +9,16 @@
         </div>
     </div>
 </main>
+
+
+<partial name="_PostDeleteConfirmation" />
+
+<script>
+    function openPostDeleteConfirmation(postId) {
+
+        console.log('Selected post id - ', postId);
+        UIkit.dropdown('.post-options-dropdown').hide();
+        document.getElementById('postId').value = postId;
+        UIkit.modal('#postDeleteDialog').show();
+    }
+</script>

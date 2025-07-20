@@ -28,20 +28,22 @@ namespace Connect.Utilities.Service
         }
 
 
-        public async Task<List<Post>> GetPostsByUserId(int userId)
+        public async Task<List<Post>> GetPostsByUserId(int userId = 0)
         {
             var posts = await _context.Posts
-                .Where(p => p.UserId == userId && p.Reports.Count < 5)
-                .OrderByDescending(p => p.DateCreated)
-                .IncludeAllPostData()
-                .ToListAsync();
+            .Where(p => (userId == 0 || p.UserId == userId) && p.Reports.Count < 5)
+            .OrderByDescending(p => p.DateCreated)
+            .IncludeAllPostData()
+            .ToListAsync();
+
+
 
             return await _postService.ProcessPosts(posts);
         }
 
-   
 
-       
+
+
 
 
 

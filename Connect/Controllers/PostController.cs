@@ -430,7 +430,12 @@ namespace Connect.Controllers
             }
             int userId = user.Id;
             var favoritePosts = await _context.Favorites
-              .Where(f => f.UserId == userId).Include(u => u.User).Include(m => m.Post).ToListAsync();
+              .Where(f => f.UserId == userId).Include(u => u.User).ToListAsync();
+
+            foreach (var favoritePost in favoritePosts)
+            {
+                favoritePost.Post = await _postService.GetPostById(favoritePost.PostId);
+            }
 
             return View(favoritePosts);
 
