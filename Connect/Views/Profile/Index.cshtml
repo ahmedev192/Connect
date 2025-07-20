@@ -8,7 +8,7 @@
             <!-- Profile Picture Section -->
             <div class="p-6 pb-4 flex items-center justify-between">
                 <form id="updateProfilePictureForm" class="gap-4 flex w-full items-center"
-                      asp-controller="Authentication" asp-action="UpdateProfilePicture" enctype="multipart/form-data">
+                      asp-controller="Profile" asp-action="UpdateProfilePicture" enctype="multipart/form-data">
                     <div class="w-12 h-12 relative shrink-0">
                         <label for="imageUpload" class="cursor-pointer">
                             <img id="imagePreview" src="@(Model.User?.ProfilePictureUrl)"
@@ -46,7 +46,7 @@
             <div id="setting_tab" class="uk-switcher py-12 px-20 text-black overflow-hidden text-sm">
                 <!-- Update Profile -->
                 <div>
-                    <form asp-controller="Authentication" asp-action="UpdateProfile" method="post">
+                    <form asp-controller="Profile" asp-action="UpdateProfile" method="post">
                         <div class="space-y-6">
                             @if (TempData["UserProfileError"] != null)
                             {
@@ -85,7 +85,7 @@
 
                 <!-- Update Password -->
                 <div>
-                    <form asp-controller="Authentication" asp-action="UpdatePassword" method="post">
+                    <form asp-controller="Profile" asp-action="UpdatePassword" method="post">
                         <div class="space-y-6">
                             @if (TempData["PasswordError"] != null)
                             {

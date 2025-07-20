@@ -27,7 +27,8 @@ namespace Connect
             builder.Services.AddScoped<IHashtagService, HashtagService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddScoped<IPostService, PostService>();
-
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 
 
@@ -54,8 +55,8 @@ namespace Connect
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
-                options.LoginPath = "/Authentication/Login";
-                options.AccessDeniedPath = "/Authentication/AccessDenied";
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
 
             });
             builder.Services.AddAuthentication();

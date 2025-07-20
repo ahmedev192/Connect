@@ -9,11 +9,11 @@
 				<h2 class="mb-1.5 text-2xl font-semibold">Sign in to your account</h2>
 				<p class="text-gray-700 text-sm font-normal">
 					If you have not signed up yet,
-					<a asp-controller="Authentication" asp-action="Register" class="text-blue-700">Register here!</a>
+					<a asp-controller="Account" asp-action="Register" class="text-blue-700">Register here!</a>
 				</p>
 			</div>
 
-			<form asp-controller="Authentication" asp-action="Login" method="post" class="space-y-7 text-black text-sm font-medium">
+			<form asp-controller="Account" asp-action="Login" method="post" class="space-y-7 text-black text-sm font-medium">
 				<div class="text-red-500 col-span-2" asp-validation-summary="ModelOnly"></div>
 
 				<div>
@@ -51,10 +51,10 @@
 				</div>
 
 				<div class="gap-2 flex">
-					<a asp-controller="Authentication" asp-action="ExternalLogin" asp-route-provider="Google" class="button gap-2 bg-primary text-white flex flex-1 items-center text-sm">
+					<a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google" class="button gap-2 bg-primary text-white flex flex-1 items-center text-sm">
 						<ion-icon name="logo-google" class="text-lg"></ion-icon> google
 					</a>
-					<a asp-controller="Authentication" asp-action="ExternalLogin" asp-route-provider="GitHub" class="button gap-2 bg-black text-white flex flex-1 items-center text-sm"><ion-icon name="logo-github" class="text-lg"></ion-icon> github </a>		
+					<a asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="GitHub" class="button gap-2 bg-black text-white flex flex-1 items-center text-sm"><ion-icon name="logo-github" class="text-lg"></ion-icon> github </a>
 					</a>
 				</div>
 			</form>

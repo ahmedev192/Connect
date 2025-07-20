@@ -46,7 +46,7 @@
 			<div class="post-options-dropdown w-[245px]" uk-dropdown="pos: bottom-right; animation: uk-animation-scale-up uk-transform-origin-top-right; animate-out: true; mode: click">
 				@if (Model.UserId == currentUserId)
 				{
-					<form asp-controller="post" asp-action="ToggleVisability">
+					<form asp-controller="Interaction" asp-action="ToggleVisability">
 						<input type="hidden" name="postId" value="@Model.Id" />
 						<button type="submit" class="icon-link hover:!bg-red-50">
 							<ion-icon name="@(Model.IsPrivate ? "lock-open-outline" : "lock-closed-outline")"></ion-icon>  Set as @(Model.IsPrivate ? "public" : "private")
@@ -60,7 +60,7 @@
 				}
 				@if (!isReported)
 				{
-					<form asp-controller="Post" asp-action="AddPostReport">
+					<form asp-controller="Interaction" asp-action="AddPostReport">
 						<input type="hidden" name="postId" value="@Model.Id" />
 						<button type="submit" class="icon-link hover:!bg-red-50">
 							<ion-icon class="shrink-0 text-xl" name="flag-outline"></ion-icon>  Report
@@ -100,7 +100,7 @@
 	<div class="p-2.5 gap-4 flex items-center text-xs font-semibold sm:p-4">
 
 		<div class="gap-2.5 flex items-center">
-			<form asp-controller="Post" asp-action="TogglePostLike">
+			<form asp-controller="Interaction" asp-action="TogglePostLike">
 				<input type="hidden" name="postId" value="@Model.Id" />
 				<button type="submit" class="button-icon @(isLiked ? "text-red-500 bg-red-100" : "")">
 
@@ -127,7 +127,7 @@
 
 
 		<div class="gap-2 flex items-center">
-			<form asp-controller="Post" asp-action="TogglePostFavorite">
+			<form asp-controller="Interaction" asp-action="TogglePostFavorite">
 				<input type="hidden" name="postId" value="@Model.Id" />
 				<button type="submit" class="button-icon ml-auto @(isFavorited ? "text-orange-500 bt-orange-100" : "")">
 					<ion-icon class="text-lg" name="@(isFavorited ? "bookmark" : "bookmark-outline")"></ion-icon>
@@ -180,7 +180,7 @@
 									@comment.Content
 								</p>
 
-								<form asp-controller="Post" asp-action="RemovePostComment">
+								<form asp-controller="Interaction" asp-action="DeleteComment">
 									<input type="hidden" name="commentId" value="@comment.Id" />
 									<button type="submit" class="text-red-500 ml-2 text-xs" title="Remove post comment">
 										<ion-icon name="trash-outline"></ion-icon>
@@ -195,7 +195,7 @@
 				@if (Model.Comments.Count >= 3 && !showAllComments)
 				{
 					<div class="p-1.5">
-						<a asp-controller="Post" asp-action="Details" asp-route-postId="@Model.Id">
+						<a asp-controller="Post" asp-action="PostDetails" asp-route-postId="@Model.Id">
 							Show all comments
 						</a>
 					</div>
@@ -203,10 +203,10 @@
 
 			</div>
 
-			<form asp-controller="Post" asp-action="AddPostComment">
+			<form asp-controller="Interaction" asp-action="AddComment">
 
 				<div class="p-2.5 border-gray-100 gap-1 flex items-center border-t sm:px-4 sm:py-3">
-					<a asp-controller="User" asp-action="Detalis" asp-route-userId="@Model.UserId">
+					<a asp-controller="User" asp-action="UserDetails" asp-route-userId="@Model.UserId">
 						<img src="@Url.Content(Model.User.ProfilePictureUrl)" class="w-6 h-6 rounded-full" />
 					</a>
 
