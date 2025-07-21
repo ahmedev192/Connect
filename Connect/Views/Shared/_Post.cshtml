@@ -203,7 +203,9 @@
 
 			</div>
 
-			<form asp-controller="Interaction" asp-action="AddComment">
+			<form asp-controller="Interaction" asp-action="AddComment" class="add-comment-form">
+				@Html.AntiForgeryToken()
+
 
 				<div class="p-2.5 border-gray-100 gap-1 flex items-center border-t sm:px-4 sm:py-3">
 					<a asp-controller="User" asp-action="UserDetails" asp-route-userId="@Model.UserId">

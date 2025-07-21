@@ -64,6 +64,7 @@ namespace Connect.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(Comment comment)
         {
             if (!ModelState.IsValid)
@@ -79,10 +80,12 @@ namespace Connect.Controllers
             await _context.Comments.AddAsync(comment);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Home");
+            var post = await _postService.GetPostById(comment.PostId);
+            return PartialView("_Post", post);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteComment(int commentId)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -108,6 +111,7 @@ namespace Connect.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TogglePostFavorite(int postId)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -129,6 +133,7 @@ namespace Connect.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPostReport(int postId)
         {
             var user = await _userManager.GetUserAsync(User);
