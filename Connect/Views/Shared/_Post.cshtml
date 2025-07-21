@@ -179,13 +179,17 @@
 								<p class="mt-0.5">
 									@comment.Content
 								</p>
-
-								<form asp-controller="Interaction" asp-action="DeleteComment">
+								@if (Model.UserId == currentUserId)
+								{
+								<form asp-controller="Interaction" asp-action="DeleteComment" class="remove-comment-form">
+									@Html.AntiForgeryToken()
 									<input type="hidden" name="commentId" value="@comment.Id" />
+									<input type="hidden" name="postId" value="@comment.PostId" />
 									<button type="submit" class="text-red-500 ml-2 text-xs" title="Remove post comment">
 										<ion-icon name="trash-outline"></ion-icon>
 									</button>
 								</form>
+								}
 							</div>
 
 						</div>

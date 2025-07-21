@@ -91,10 +91,10 @@ namespace Connect.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
-
+            Comment comment = new() ;
             try
             {
-                var comment = await _context.Comments.FindAsync(commentId);
+                comment = await _context.Comments.FindAsync(commentId);
                 if (comment == null || comment.UserId != user.Id)
                     return NotFound();
 
@@ -107,7 +107,8 @@ namespace Connect.Controllers
                 ModelState.AddModelError("", "An error occurred while deleting the comment.");
             }
 
-            return RedirectToAction("Index", "Home");
+            var post = await _postService.GetPostById(comment.PostId);
+            return PartialView("_Post", post);
         }
 
         [HttpPost]
