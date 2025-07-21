@@ -124,8 +124,8 @@ namespace Connect.Controllers
 
             await _context.SaveChangesAsync();
 
-
-            return RedirectToAction("Index", "Home");
+            var post = await _postService.GetPostById(postId);
+            return PartialView("_Post", post);
         }
 
         [HttpPost]

@@ -29,13 +29,14 @@
 
 
 
-
-	   document.addEventListener('DOMContentLoaded', function () {
+		document.addEventListener('DOMContentLoaded', function () {
 		document.getElementById('posts-container').addEventListener('click', function () {
-			if (event.target.closest('.like-button')) {
+			// if (event.target.closest('.like-button')) {
+			const button = event.target.closest('.like-button, .favorite-button')
+			if (button) {
 				event.preventDefault();
 
-				var button = event.target.closest('.like-button');
+				// var button = event.target.closest('.like-button');
 				var form = button.closest('form');
 				var postId = form.querySelector('input[name="postId"]').value;
 				var postContainer = document.getElementById('post-' + postId);
@@ -47,13 +48,16 @@
 				})
 					.then(response => response.text())
 					.then(html => {
-						postContainer.innerHTML = html;
+						const temp = document.createElement('div');
+						temp.innerHTML = html.trim();
+						const newPost = temp.firstElementChild;
+
+						postContainer.replaceWith(newPost);
 					})
 					.catch(error => console.error('Error: ', error));
 			}
 		})
 	})
-
 
 </script>
 
