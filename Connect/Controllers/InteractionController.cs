@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Connect.DataAccess.Data;
 using Connect.Models;
+using Connect.Utilities.Service;
 using Connect.Utilities.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -27,6 +28,7 @@ namespace Connect.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TogglePostLike(int postId)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -57,7 +59,8 @@ namespace Connect.Controllers
                 return View();
             }
 
-            return RedirectToAction("Index", "Home");
+            var updatedPost = await _postService.GetPostById(postId);
+            return PartialView("_Post", updatedPost);
         }
 
         [HttpPost]
@@ -120,6 +123,8 @@ namespace Connect.Controllers
                 await _context.Favorites.AddAsync(new Favorite { PostId = postId, UserId = user.Id });
 
             await _context.SaveChangesAsync();
+
+
             return RedirectToAction("Index", "Home");
         }
 
