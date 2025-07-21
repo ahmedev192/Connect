@@ -18,6 +18,7 @@ namespace Connect.Models
         public ICollection<Report> Reports { get; set; } = new List<Report>();
 
         public ICollection<Story> Stories { get; set; } = new List<Story>();
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
 
     }

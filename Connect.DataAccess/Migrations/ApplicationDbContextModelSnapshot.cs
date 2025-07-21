@@ -187,6 +187,41 @@ namespace Connect.DataAccess.Migrations
                     b.ToTable("Likes");
                 });
 
+            modelBuilder.Entity("Connect.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notification");
+                });
+
             modelBuilder.Entity("Connect.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -585,6 +620,17 @@ namespace Connect.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Connect.Models.Notification", b =>
+                {
+                    b.HasOne("Connect.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Connect.Models.Post", b =>
                 {
                     b.HasOne("Connect.Models.User", "User")
@@ -695,6 +741,8 @@ namespace Connect.DataAccess.Migrations
                     b.Navigation("Favorites");
 
                     b.Navigation("Likes");
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("Posts");
 
