@@ -11,6 +11,9 @@ namespace Connect.Utilities.Service.IService
     {
         Task<List<Post>> GetReportedPostsAsync();
         Task ApproveReportAsync(int postId);
+        Task RejectReportAsync(int postId);
+
+
 
     }
 }   
