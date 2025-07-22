@@ -1,5 +1,6 @@
 ﻿using Connect.Controllers.Base;
 using Connect.Models;
+using Connect.Utilities.Service;
 using Connect.Utilities.Service.IService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -29,5 +30,16 @@ namespace Connect.Controllers
             var count = await _notificationService.GetUnreadNotificationsCountAsync(userId.Value);
             return Json(count);
         }
+
+
+        public async Task<IActionResult> GetNotifications()
+        {
+            var userId = GetUserId();
+            if (!userId.HasValue) RedirectToLogin();
+
+            var notifications = await _notificationService.GetNotifications(userId.Value);
+            return PartialView("Notifications/_Notifications", notifications);
+        }
+
     }
 }
