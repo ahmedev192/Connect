@@ -1,6 +1,7 @@
 using Connect.DataAccess.Data;
 using Connect.DataAccess.Repository;
 using Connect.DataAccess.Repository.IRepository;
+using Connect.Hubs;
 using Connect.Models;
 using Connect.Utilities.Service;
 using Connect.Utilities.Service.IService;
@@ -30,6 +31,9 @@ namespace Connect
             builder.Services.AddScoped<IProfileService, ProfileService>();
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<IFriendService, FriendService>();
+            builder.Services.AddScoped<IInteractionService, InteractionService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+
 
 
 
@@ -64,6 +68,9 @@ namespace Connect
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
+
+
+
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddGoogle(options =>
     {
@@ -79,6 +86,11 @@ namespace Connect
         options.ClientSecret = builder.Configuration["Auth:GitHub:ClientSecret"] ?? "";
         options.CallbackPath = "/signin-github";
     });
+
+
+
+            builder.Services.AddSignalR(); // Register SignalR services
+
 
 
             var app = builder.Build();
@@ -144,6 +156,10 @@ namespace Connect
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+            app.MapHub<NotificationHub>("/notificationHub");
+
 
             app.Run();
         }

@@ -6,25 +6,24 @@ using Connect.Utilities.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Connect.Controllers
 {
     [Authorize]
     public class InteractionController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly IInteractionService _interactionService;
         private readonly IPostService _postService;
+        private readonly UserManager<User> _userManager;
 
         public InteractionController(
-            ApplicationDbContext context,
-            UserManager<User> userManager,
-            IPostService postService)
+            IInteractionService interactionService,
+            IPostService postService,
+            UserManager<User> userManager)
         {
-            _context = context;
-            _userManager = userManager;
+            _interactionService = interactionService;
             _postService = postService;
+            _userManager = userManager;
         }
 
         [HttpPost]
@@ -37,30 +36,14 @@ namespace Connect.Controllers
 
             try
             {
-                var post = await _context.Posts
-                    .Include(p => p.Likes)
-                    .FirstOrDefaultAsync(p => p.Id == postId);
-
-                if (post == null)
-                    return NotFound();
-
-                var existingLike = await _context.Likes
-                    .FirstOrDefaultAsync(pl => pl.PostId == postId && pl.UserId == user.Id);
-
-                if (existingLike != null)
-                    _context.Likes.Remove(existingLike);
-                else
-                    await _context.Likes.AddAsync(new Like { PostId = postId, UserId = user.Id });
-
-                await _context.SaveChangesAsync();
+                await _interactionService.TogglePostLikeAsync(postId, user.Id);
+                var post = await _postService.GetPostById(postId);
+                return PartialView("_Post", post);
             }
             catch
             {
                 return View();
             }
-
-            var updatedPost = await _postService.GetPostById(postId);
-            return PartialView("_Post", updatedPost);
         }
 
         [HttpPost]
@@ -74,14 +57,17 @@ namespace Connect.Controllers
             if (user == null)
                 return Unauthorized();
 
-            comment.UserId = user.Id;
-            comment.DateCreated = DateTime.UtcNow;
-            comment.DateUpdated = DateTime.UtcNow;
-            await _context.Comments.AddAsync(comment);
-            await _context.SaveChangesAsync();
-
-            var post = await _postService.GetPostById(comment.PostId);
-            return PartialView("_Post", post);
+            try
+            {
+                await _interactionService.AddCommentAsync(comment, user.Id);
+                var post = await _postService.GetPostById(comment.PostId);
+                return PartialView("_Post", post);
+            }
+            catch
+            {
+                ModelState.AddModelError("", "An error occurred while adding the comment.");
+                return View(comment);
+            }
         }
 
         [HttpPost]
@@ -91,24 +77,22 @@ namespace Connect.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
-            Comment comment = new() ;
+
             try
             {
-                comment = await _context.Comments.FindAsync(commentId);
-                if (comment == null || comment.UserId != user.Id)
+                var postId = await _interactionService.DeleteCommentAsync(commentId, user.Id);
+                if (postId == null)
                     return NotFound();
 
-                _context.Comments.Remove(comment);
-                await _context.SaveChangesAsync();
                 TempData["Success"] = "Comment deleted successfully!";
+                var post = await _postService.GetPostById(postId.Value);
+                return PartialView("_Post", post);
             }
             catch
             {
                 ModelState.AddModelError("", "An error occurred while deleting the comment.");
+                return View();
             }
-
-            var post = await _postService.GetPostById(comment.PostId);
-            return PartialView("_Post", post);
         }
 
         [HttpPost]
@@ -119,18 +103,17 @@ namespace Connect.Controllers
             if (user == null)
                 return Unauthorized();
 
-            var favorite = await _context.Favorites
-                .FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == user.Id);
-
-            if (favorite != null)
-                _context.Favorites.Remove(favorite);
-            else
-                await _context.Favorites.AddAsync(new Favorite { PostId = postId, UserId = user.Id });
-
-            await _context.SaveChangesAsync();
-
-            var post = await _postService.GetPostById(postId);
-            return PartialView("_Post", post);
+            try
+            {
+                await _interactionService.TogglePostFavoriteAsync(postId, user.Id);
+                var post = await _postService.GetPostById(postId);
+                return PartialView("_Post", post);
+            }
+            catch
+            {
+                ModelState.AddModelError("", "An error occurred while toggling favorite.");
+                return View();
+            }
         }
 
         [HttpPost]
@@ -143,31 +126,15 @@ namespace Connect.Controllers
 
             try
             {
-                var existingReport = await _context.Reports
-                    .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == user.Id);
-
-                if (existingReport != null)
-                {
-                    ModelState.AddModelError("", "You have already reported this post.");
-                    return RedirectToAction("Index", "Home");
-                }
-
-                var report = new Report
-                {
-                    PostId = postId,
-                    UserId = user.Id,
-                    DateCreated = DateTime.UtcNow
-                };
-                await _context.Reports.AddAsync(report);
-                await _context.SaveChangesAsync();
+                await _interactionService.AddPostReportAsync(postId, user.Id);
                 TempData["Success"] = "Post reported successfully!";
+                return RedirectToAction("Index", "Home");
             }
             catch
             {
                 ModelState.AddModelError("", "An error occurred while reporting the post.");
+                return RedirectToAction("Index", "Home");
             }
-
-            return RedirectToAction("Index", "Home");
         }
     }
 }

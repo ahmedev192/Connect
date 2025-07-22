@@ -15,12 +15,15 @@ namespace Connect.Utilities.Service
         private readonly ApplicationDbContext _context;
         private readonly IFileUploadService _fileUploadService;
         private readonly IHashtagService _hashtagService;
+        private readonly INotificationService _notificationService;
 
-        public PostService(ApplicationDbContext context, IFileUploadService fileUploadService, IHashtagService hashtagService)
+
+        public PostService(ApplicationDbContext context, IFileUploadService fileUploadService, IHashtagService hashtagService, INotificationService notificationService)
         {
             _context = context;
             _fileUploadService = fileUploadService;
             _hashtagService = hashtagService;
+            _notificationService = notificationService;
         }
 
         public async Task<Post> GetPostById(int postId)
