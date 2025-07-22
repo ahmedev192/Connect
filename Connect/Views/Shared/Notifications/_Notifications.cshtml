@@ -3,51 +3,59 @@
 
 @foreach (var notification in @Model)
 {
-    TimeSpan time = DateTime.UtcNow.Subtract(notification.DateCreated);
-    string displayTxt = time switch
-    {
-        var t when t.TotalDays >= 1 => $"{(int)t.TotalDays}d ago",
-        var t when t.TotalHours >= 1 => $"{(int)t.TotalHours}h ago",
-        var t when t.TotalMinutes >= 1 => $"{(int)t.TotalMinutes}m ago",
-        _ => "Just now"
-    };
+	TimeSpan time = DateTime.UtcNow.Subtract(notification.DateCreated);
+	string displayTxt = time switch
+	{
+		var t when t.TotalDays >= 1 => $"{(int)t.TotalDays}d ago",
+		var t when t.TotalHours >= 1 => $"{(int)t.TotalHours}h ago",
+		var t when t.TotalMinutes >= 1 => $"{(int)t.TotalMinutes}m ago",
+		_ => "Just now"
+	};
 
-    string iconName = notification.Type switch
-    {
-        NotificationType.Favorite => "bookmark-outline",
-        NotificationType.Like => "heart-outline",
-        NotificationType.Comment => "chatbubbles-outline",
-        NotificationType.FriendRequest => "person-add-outline",
-        NotificationType.FriendRequestApproved => "person-outline",
-        _ => "notifications-outline"
-    };
+	string iconName = notification.Type switch
+	{
+		NotificationType.Favorite => "bookmark-outline",
+		NotificationType.Like => "heart-outline",
+		NotificationType.Comment => "chatbubbles-outline",
+		NotificationType.FriendRequest => "person-add-outline",
+		NotificationType.FriendRequestApproved => "person-outline",
+		_ => "notifications-outline"
+	};
+	string redirectUrl = notification.Type switch
+	{
+		NotificationType.FriendRequest => Url.Action("Index", "Friend"),
+		NotificationType.FriendRequestApproved => Url.Action("Index", "Friend"),
+		_ => Url.Action("PostDetails", "Post", new { postId = notification.PostId })
+	};
+	<div class="gap-3 p-2 pr-10 relative flex items-center rounded-xl duration-200 hover:bg-secondery @(notification.IsRead ? "" : "bg-teal-500/5")">
+		<div class="gap-2 flex flex-1 items-center">
+			<ion-icon name="@iconName" class="text-2xl"></ion-icon>
+			<div>
+				<p>
+					<a href="@redirectUrl">
+						@if (notification.IsRead)
+						{
+							@notification.Message
+						}
+						else
+						{
+							<b class="mr1 font-bold">
+								@notification.Message
+							</b>
+						}
+					</a>
 
-    <div class="gap-3 p-2 pr-10 relative flex items-center rounded-xl duration-200 hover:bg-secondery @(notification.IsRead ? "" : "bg-teal-500/5")">
-        <div class="gap-2 flex flex-1 items-center">
-            <ion-icon name="@iconName" class="text-2xl"></ion-icon>
-            <div>
-                <p>
-                    @if (notification.IsRead)
-                    {
-                        @notification.Message
-                    }
-                    else
-                    {
-                        <b class="mr1 font-bold">
-                            @notification.Message
-                        </b>
-                    }
 
-                </p>
-                <div class="text-gray-500 mt-1.5 text-xs">@displayTxt</div>
+				</p>
+				<div class="text-gray-500 mt-1.5 text-xs">@displayTxt</div>
 
-            </div>
-            
-            @if (notification.IsRead == false)
-            {
-                <div class="w-2.5 h-2.5 bg-teal-600 right-3 top-5 absolute rounded-full" onclick="setNotificationAsRead(@notification.Id)"></div>
-            }
+			</div>
 
-        </div>
-    </div>
+			@if (notification.IsRead == false)
+			{
+				<div class="w-2.5 h-2.5 bg-teal-600 right-3 top-5 absolute rounded-full" onclick="setNotificationAsRead(@notification.Id)"></div>
+			}
+
+		</div>
+	</div>
 }

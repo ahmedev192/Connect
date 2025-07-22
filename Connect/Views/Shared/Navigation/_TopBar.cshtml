@@ -107,7 +107,7 @@
 <script>
 	document.addEventListener("DOMContentLoaded", () => {
 
-		fetch("Notification/GetCount", {
+		fetch("/Notification/GetCount", {
 			method: 'GET',
 			headers: {
 				'Content-Type':'application/json'
@@ -124,7 +124,7 @@
 
 
 		document.getElementById('notificationsBtn').addEventListener('click', () => {
-			fetch('Notification/GetNotifications')
+			fetch('/Notification/GetNotifications')
 				.then(resp => resp.text())
 				.then(html => {
 					document.getElementById('notification-dropdown').innerHTML = html;
@@ -151,7 +151,7 @@
 	function setNotificationAsRead(notificationId) {
 		console.log('Mark as read => notification => ', notificationId);
 
-		fetch(`Notification/SetNotificationAsRead?notificationId=${notificationId}`, {
+		fetch(`/Notification/SetNotificationAsRead?notificationId=${notificationId}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
