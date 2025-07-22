@@ -46,10 +46,9 @@ namespace Connect.Controllers
             {
                 var result = await _interactionService.TogglePostLikeAsync(postId, user.Value);
                 var post = await _postService.GetPostById(postId);
-                await _notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Comment, userName, postId);
 
 
-                if (result.SendNotification)
+                if (result.SendNotification && user.Value != post.UserId)
                     await _notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Like, userName, postId);
               
                 return PartialView("_Post", post);
@@ -68,6 +67,7 @@ namespace Connect.Controllers
                 return View(comment);
 
             var user = GetUserId();
+            var userName = GetUserFullName();
             if (user == null)
                 return Unauthorized();
 
@@ -75,6 +75,9 @@ namespace Connect.Controllers
             {
                 await _interactionService.AddCommentAsync(comment, user.Value);
                 var post = await _postService.GetPostById(comment.PostId);
+                if (user.Value != post.UserId)
+                    await _notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Comment, userName, comment.PostId);
+
                 return PartialView("_Post", post);
             }
             catch
@@ -123,7 +126,7 @@ namespace Connect.Controllers
             {
                 var result = await _interactionService.TogglePostFavoriteAsync(postId, user.Value);
                 var post = await _postService.GetPostById(postId);
-                if (result.SendNotification)
+                if (result.SendNotification && user.Value != post.UserId)
                     await _notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Favorite, userName, postId);
 
 
@@ -156,5 +159,13 @@ namespace Connect.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
+
+
+
+
+
+
+
+
     }
 }

@@ -33,7 +33,7 @@ namespace Connect.Utilities.Service
                 Message = GetPostMessage(notificationType, userFullName),
                 Type = notificationType,
                 IsRead = false,
-                PostId = postId,
+                PostId = postId.HasValue ? postId.Value : null,
                 DateCreated = DateTime.UtcNow,
                 DateUpdated = DateTime.UtcNow
             };
@@ -69,6 +69,20 @@ namespace Connect.Utilities.Service
             return allNotifications;
         }
 
+
+        public async Task SetNotificationAsReadAsync(int notificationId)
+        {
+            var notificationDb = await _context.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId);
+
+            if (notificationDb != null)
+            {
+                notificationDb.DateUpdated = DateTime.UtcNow;
+                notificationDb.IsRead = true;
+
+                _context.Notifications.Update(notificationDb);
+                await _context.SaveChangesAsync();
+            }
+        }
 
 
         private string GetPostMessage(string notificationType, string userFullName)

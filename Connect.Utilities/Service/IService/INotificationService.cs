@@ -13,6 +13,8 @@ namespace Connect.Utilities.Service.IService
 
         Task<int> GetUnreadNotificationsCountAsync(int userId);
         Task<List<Notification>> GetNotifications(int userId);
+        Task SetNotificationAsReadAsync(int notificationId);
+
 
 
 

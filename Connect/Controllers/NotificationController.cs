@@ -41,5 +41,18 @@ namespace Connect.Controllers
             return PartialView("Notifications/_Notifications", notifications);
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> SetNotificationAsRead(int notificationId)
+        {
+            var userId = GetUserId();
+            if (!userId.HasValue) RedirectToLogin();
+
+            await _notificationService.SetNotificationAsReadAsync(notificationId);
+
+            var notifications = await _notificationService.GetNotifications(userId.Value);
+            return PartialView("Notifications/_Notifications", notifications);
+        }
+
     }
 }

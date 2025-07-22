@@ -11,7 +11,7 @@ namespace Connect.Utilities.Service.IService
     public interface IFriendService
     {
         Task SendRequestAsync(int senderId, int receiverId);
-        Task UpdateRequestAsync(int requestId, string status);
+        Task<FriendRequest> UpdateRequestAsync(int requestId, string status);
         Task RemoveFriendAsync(int frienshipId);
         Task<List<UserWithFriendsCountDTO>> GetSuggestedFriendsAsync(int userId);
         Task<List<FriendRequest>> GetSentFriendRequestAsync(int userId);

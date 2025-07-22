@@ -13,11 +13,13 @@ namespace Connect.Controllers
     {
 
         private readonly IFriendService _friendService;
+        private readonly INotificationService _notificationsService;
 
-        public FriendController(IFriendService friendService, UserManager<User> userManager) : base(userManager)
+        public FriendController(IFriendService friendService, UserManager<User> userManager,INotificationService notificationService ) : base(userManager)
         {
 
             _friendService = friendService;
+            _notificationsService = notificationService;
         }
         public async Task<IActionResult> Index()
         {
@@ -39,16 +41,25 @@ namespace Connect.Controllers
         public async Task<IActionResult> SendFriendRequest(int receiverId)
         {
             var userId = GetUserId();
+            var userName = GetUserFullName();
             if (!userId.HasValue) RedirectToLogin();
 
             await _friendService.SendRequestAsync(userId.Value, receiverId);
+            await _notificationsService.AddNewNotificationAsync(receiverId, NotificationType.FriendRequest, userName, null);
             return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateFriendRequest(int requestId, string status)
         {
-            await _friendService.UpdateRequestAsync(requestId, status);
+            var userId = GetUserId();
+            var userName = GetUserFullName();
+            if (!userId.HasValue) RedirectToLogin();
+
+            var request = await _friendService.UpdateRequestAsync(requestId, status);
+
+            if (status == FriendshipStatus.Accepted)
+                await _notificationsService.AddNewNotificationAsync(request.SenderId, NotificationType.FriendRequestApproved, userName, null);
             return RedirectToAction("Index");
         }
 

@@ -107,8 +107,6 @@
 <script>
 	document.addEventListener("DOMContentLoaded", () => {
 
-
-
 		fetch("Notification/GetCount", {
 			method: 'GET',
 			headers: {
@@ -124,15 +122,14 @@
 				console.error("Error fetching notification count: ", error);
 			})
 
-			// Fetch notifications when the button is clicked
-			  document.getElementById('notificationsBtn').addEventListener('click', () => {
+
+		document.getElementById('notificationsBtn').addEventListener('click', () => {
 			fetch('Notification/GetNotifications')
 				.then(resp => resp.text())
 				.then(html => {
 					document.getElementById('notification-dropdown').innerHTML = html;
 				})
 		})
-
 
 		//SignalR connection
 		const connection = new signalR.HubConnectionBuilder()
@@ -150,4 +147,19 @@
 			.catch((err) => console.log("SignalR connection error: ", err))
 
 	})
+
+	function setNotificationAsRead(notificationId) {
+		console.log('Mark as read => notification => ', notificationId);
+
+		fetch(`Notification/SetNotificationAsRead?notificationId=${notificationId}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+			.then(resp => resp.text())
+			.then(html => {
+				document.getElementById('notification-dropdown').innerHTML = html;
+			})
+	}
 </script>
