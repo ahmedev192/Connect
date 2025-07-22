@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Connect.Utilities.StaticDetails
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -16,11 +17,15 @@
 
         @if (User.Identity.IsAuthenticated)
         {
-            @* Topbar *@
-            <partial name="Navigation/_TopBar" />
-
-            @* Side bar (left) *@
-            <partial name="Navigation/_SideBar" />
+            @if (User.IsInRole(ApplicationRoles.User))
+            {
+                <partial name="Navigation/_TopBar" />
+                <partial name="Navigation/_SideBar" />
+            }
+            else if (User.IsInRole(ApplicationRoles.Admin))
+            {
+                <partial name="Navigation/_TopBarAdmin" />
+            }
         }
 
         @RenderBody()

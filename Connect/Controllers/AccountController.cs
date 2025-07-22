@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Connect.Models;
 using Connect.Models.ViewModels;
 using Connect.Utilities.Service.IService;
+using Connect.Utilities.StaticDetails;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -41,8 +42,12 @@ namespace Connect.Controllers
 
             var result = await _authService.LoginAsync(model);
             if (result.Succeeded)
-                return Redirect(returnUrl ?? "/");
-
+            {
+                if (User.IsInRole(ApplicationRoles.Admin))
+                    return RedirectToAction("Index", "Admin");
+                else
+                    return RedirectToAction("Index", "Home");
+            }
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(model);
         }

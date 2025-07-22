@@ -118,6 +118,19 @@ namespace Connect.Utilities.Service
             };
             await _context.Reports.AddAsync(report);
             await _context.SaveChangesAsync();
+
+
+
+
+
+
+            var post = await _context.Posts.FirstOrDefaultAsync(n => n.Id == postId);
+            if (post != null)
+            {
+                post.NrOfReports += 1;
+                _context.Posts.Update(post);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

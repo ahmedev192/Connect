@@ -33,6 +33,8 @@ namespace Connect
             builder.Services.AddScoped<IFriendService, FriendService>();
             builder.Services.AddScoped<IInteractionService, InteractionService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+
 
 
 

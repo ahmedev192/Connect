@@ -1,0 +1,48 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Connect.DataAccess.Data;
+using Connect.Models;
+using Connect.Utilities.Service.IService;
+using Microsoft.EntityFrameworkCore;
+
+namespace Connect.Utilities.Service
+{
+    public class AdminService : IAdminService
+    {
+        private readonly ApplicationDbContext _context;
+        public AdminService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<Post>> GetReportedPostsAsync()
+        {
+
+            var posts = await _context.Posts.Include(n => n.User)
+                .Where(n => n.NrOfReports >= 1 && ! n.IsDeleted )
+                .ToListAsync();
+
+            return posts;
+        }
+
+
+
+
+
+
+        public async Task ApproveReportAsync(int postId)
+        {
+            var postDb = await _context.Posts.FirstOrDefaultAsync(n => n.Id == postId);
+
+            if (postDb != null)
+            {
+                postDb.IsDeleted = true;
+                _context.Posts.Update(postDb);
+                await _context.SaveChangesAsync();
+            }
+        }
+    }
+}

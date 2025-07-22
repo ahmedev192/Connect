@@ -14,6 +14,7 @@ namespace Connect.Models
         public string? ImageUrl { get; set; }
         public int NrOfReports { get; set; }
         public bool IsPrivate { get; set; }  = false;
+        public bool IsDeleted { get; set; } = false;
         public DateTime DateCreated { get; set; } = DateTime.Now; 
         public DateTime DateUpdated { get; set; } = DateTime.Now;
 
