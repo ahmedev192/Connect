@@ -86,7 +86,7 @@ namespace Connect.Utilities.Service
         }
 
 
-        public async Task<List<UserWithFriendsCountDto>> GetSuggestedFriendsAsync(int userId)
+        public async Task<List<UserWithFriendsCountDTO>> GetSuggestedFriendsAsync(int userId)
         {
             var existingFriendIds = await _context.Friendships
                 .Where(n => n.SenderId == userId || n.ReceiverId == userId)
@@ -103,7 +103,7 @@ namespace Connect.Utilities.Service
             var suggestedFriends = await _context.Users
                 .Where(n => n.Id != userId &&
                 !existingFriendIds.Contains(n.Id) &&
-                !pendingRequestIds.Contains(n.Id)).Select(u => new UserWithFriendsCountDto()
+                !pendingRequestIds.Contains(n.Id)).Select(u => new UserWithFriendsCountDTO()
                 {
                     User = u,
                     FriendsCount = _context.Friendships

@@ -2,7 +2,7 @@
 
 namespace Connect.Models.DTOs
 {
-    public class UserWithFriendsCountDto
+    public class UserWithFriendsCountDTO
     {
         public User User { get; set; }
         public int FriendsCount { get; set; }

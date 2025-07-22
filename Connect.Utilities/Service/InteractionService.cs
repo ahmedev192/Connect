@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Connect.DataAccess.Data;
 using Connect.Models;
+using Connect.Models.DTOs;
 using Connect.Utilities.Service.IService;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,8 +24,13 @@ namespace Connect.Utilities.Service
             _notificationService = notificationService;
         }
 
-        public async Task TogglePostLikeAsync(int postId, int userId)
+        public async Task<NotificationDTO> TogglePostLikeAsync(int postId, int userId)
         {
+            var response = new NotificationDTO()
+            {
+                Success = false,
+                SendNotification = false
+            };
             var post = await _context.Posts
                 .Include(p => p.Likes)
                 .FirstOrDefaultAsync(p => p.Id == postId);
@@ -35,15 +41,23 @@ namespace Connect.Utilities.Service
             var existingLike = await _context.Likes
                 .FirstOrDefaultAsync(pl => pl.PostId == postId && pl.UserId == userId);
 
-            if (existingLike != null)
+            if (existingLike != null) { 
                 _context.Likes.Remove(existingLike);
-            else
+                await _context.SaveChangesAsync();
+
+            }
+            else { 
                 await _context.Likes.AddAsync(new Like { PostId = postId, UserId = userId });
+                await _context.SaveChangesAsync();
+                response.SendNotification = true;
 
-            await _context.SaveChangesAsync();
-            //add notification to db
-            await _notificationService.AddNewNotificationAsync(userId, "Someone liked your post", "Like");
 
+
+            }
+
+            response.Success = true;
+
+            return response;
         }
 
         public async Task AddCommentAsync(Comment comment, int userId)

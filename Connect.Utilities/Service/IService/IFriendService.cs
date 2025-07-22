@@ -13,7 +13,7 @@ namespace Connect.Utilities.Service.IService
         Task SendRequestAsync(int senderId, int receiverId);
         Task UpdateRequestAsync(int requestId, string status);
         Task RemoveFriendAsync(int frienshipId);
-        Task<List<UserWithFriendsCountDto>> GetSuggestedFriendsAsync(int userId);
+        Task<List<UserWithFriendsCountDTO>> GetSuggestedFriendsAsync(int userId);
         Task<List<FriendRequest>> GetSentFriendRequestAsync(int userId);
         Task<List<FriendRequest>> GetReceivedFriendRequestAsync(int userId);
         Task<List<Friendship>> GetFriendsAsync(int userId);

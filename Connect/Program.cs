@@ -1,7 +1,7 @@
 using Connect.DataAccess.Data;
+using Connect.DataAccess.Hubs;
 using Connect.DataAccess.Repository;
 using Connect.DataAccess.Repository.IRepository;
-using Connect.Hubs;
 using Connect.Models;
 using Connect.Utilities.Service;
 using Connect.Utilities.Service.IService;

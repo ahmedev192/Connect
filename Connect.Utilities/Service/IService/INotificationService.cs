@@ -9,5 +9,8 @@ namespace Connect.Utilities.Service.IService
     public interface INotificationService
     {
         Task AddNewNotificationAsync(int userId, string message, string notificationType);
+        Task<int> GetUnreadNotificationsCountAsync(int userId);
+
+
     }
 }

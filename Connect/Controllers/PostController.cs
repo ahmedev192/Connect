@@ -1,35 +1,41 @@
 ﻿using System.Threading.Tasks;
+using Connect.Controllers.Base;
 using Connect.DataAccess.Data;
+using Connect.DataAccess.Hubs;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Connect.Controllers
 {
     [Authorize]
-    public class PostController : Controller
+    public class PostController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IFileUploadService _fileUploadService;
         private readonly IHashtagService _hashtagService;
-        private readonly UserManager<User> _userManager;
         private readonly IPostService _postService;
-
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
         public PostController(
             ApplicationDbContext context,
             IFileUploadService fileUploadService,
             IHashtagService hashtagService,
             UserManager<User> userManager,
-            IPostService postService)
+            IPostService postService,
+            INotificationService notificationService , 
+            IHubContext<NotificationHub> hubContext) : base(userManager)
         {
             _context = context;
             _fileUploadService = fileUploadService;
             _hashtagService = hashtagService;
-            _userManager = userManager;
             _postService = postService;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
         }
 
         public IActionResult Index()
@@ -46,7 +52,7 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Post post, IFormFile? file)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = GetUserId();
             if (user == null)
                 return Unauthorized();
 
@@ -61,7 +67,7 @@ namespace Connect.Controllers
                     }
 
                     string? imageUrl = await _fileUploadService.SaveImageAsync(file, "posts");
-                    post.UserId = user.Id;
+                    post.UserId = user.Value;
                     post.ImageUrl = imageUrl ?? "";
                     await _postService.CreatePostAsync(post);
 
@@ -80,14 +86,14 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleVisibility(int postId)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = GetUserId();
             if (user == null)
                 return Unauthorized();
 
             try
             {
                 var post = await _context.Posts.FindAsync(postId);
-                if (post == null || post.UserId != user.Id)
+                if (post == null || post.UserId != user.Value)
                     return NotFound();
 
                 post.IsPrivate = !post.IsPrivate;
@@ -107,13 +113,13 @@ namespace Connect.Controllers
         [HttpPost]
         public async Task<IActionResult> DeletePost(int postId)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = GetUserId();
             if (user == null)
                 return Unauthorized();
 
             try
             {
-                var result = await _postService.DeletePostAsync(postId, user.Id);
+                var result = await _postService.DeletePostAsync(postId, user.Value);
                 if (result.Succeeded)
                 {
                     TempData["Success"] = "Post deleted successfully!";
@@ -143,12 +149,12 @@ namespace Connect.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllFavoritePosts()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = GetUserId();
             if (user == null)
                 return Unauthorized();
 
             var favoritePosts = await _context.Favorites
-                .Where(f => f.UserId == user.Id)
+                .Where(f => f.UserId == user.Value)
                 .Include(u => u.User)
                 .ToListAsync();
 

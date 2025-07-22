@@ -100,3 +100,44 @@
 		</div>
 	</div>
 </header>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aspnet-signalr/1.0.27/signalr.min.js" integrity="sha512-a+73ErrZPjhqOu0qbW1QLsenEF4pvDjmnd+Ws6hkDyJlrwAigOQAxQhIT+fPNFWScUvtJQvn+G535TT2C6/G4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+
+
+
+		fetch("Notification/GetCount", {
+			method: 'GET',
+			headers: {
+				'Content-Type':'application/json'
+			}
+		})
+			.then(response => response.json())
+			.then(data => {
+				console.log("notifications count = ", data);
+				document.getElementById("notificationsCount").innerHTML = data;
+			})
+			.catch(error => {
+				console.error("Error fetching notification count: ", error);
+			})
+
+
+		//SignalR connection
+		const connection = new signalR.HubConnectionBuilder()
+			.withUrl("/notificationHub")
+			.build();
+
+		connection.on("ReceiveNotification", (message) => {
+			console.log("message ==> ", message);
+
+			document.getElementById("notificationsCount").innerHTML = message;
+		});
+
+		connection.start()
+			.then(() => console.log("SignalR connected"))
+			.catch((err) => console.log("SignalR connection error: ", err))
+
+	})
+</script>
