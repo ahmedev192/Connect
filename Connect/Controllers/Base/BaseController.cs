@@ -29,7 +29,6 @@ namespace Connect.Controllers.Base
             var loggedInUserFullName = User.FindFirstValue(ClaimTypes.Name);
             return loggedInUserFullName;
         }
-
         protected Task<User?> GetCurrentUserAsync()
         {
             return _userManager.GetUserAsync(User);

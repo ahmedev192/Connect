@@ -38,7 +38,7 @@ namespace Connect.Controllers
         public async Task<IActionResult> TogglePostLike(int postId)
         {
             var user = GetUserId();
-            var userName = GetUserFullName();
+            var userName =  GetUserFullName();
             if (user == null)
                 return Unauthorized();
 
@@ -114,15 +114,14 @@ namespace Connect.Controllers
         public async Task<IActionResult> TogglePostFavorite(int postId)
         {
             var user = GetUserId();
-            var userName = GetUserFullName();
+            var userName =  GetUserFullName();
             if (user == null)
                 return Unauthorized();
-            var result = await _interactionService.TogglePostFavoriteAsync(postId, user.Value);
 
 
             try
             {
-                await _interactionService.TogglePostFavoriteAsync(postId, user.Value);
+                var result = await _interactionService.TogglePostFavoriteAsync(postId, user.Value);
                 var post = await _postService.GetPostById(postId);
                 if (result.SendNotification)
                     await _notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Favorite, userName, postId);
