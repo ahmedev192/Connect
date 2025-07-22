@@ -7,6 +7,7 @@ using Connect.DataAccess.Data;
 using Connect.DataAccess.Hubs;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
+using Connect.Utilities.StaticDetails;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,14 +25,15 @@ namespace Connect.Utilities.Service
             _hubContext = hubContext;
         }
 
-        public async Task AddNewNotificationAsync(int userId, string message, string notificationType)
+        public async Task AddNewNotificationAsync(int userId, string notificationType, string userFullName, int? postId)
         {
             var newNotification = new Notification()
             {
                 UserId = userId,
-                Message = message,
+                Message = GetPostMessage(notificationType, userFullName),
                 Type = notificationType,
                 IsRead = false,
+                PostId = postId,
                 DateCreated = DateTime.UtcNow,
                 DateUpdated = DateTime.UtcNow
             };
@@ -50,6 +52,39 @@ namespace Connect.Utilities.Service
                 .CountAsync();
 
             return count;
+        }
+        private string GetPostMessage(string notificationType, string userFullName)
+        {
+            var message = "";
+
+            switch (notificationType)
+            {
+                case NotificationType.Like:
+                    message = $"{userFullName} liked your post";
+                    break;
+
+                case NotificationType.Favorite:
+                    message = $"{userFullName} favorited your post";
+                    break;
+
+                case NotificationType.Comment:
+                    message = $"{userFullName} added a coment to your post";
+                    break;
+
+                case NotificationType.FriendRequest:
+                    message = $"{userFullName} sent you a friend request";
+                    break;
+
+                case NotificationType.FriendRequestApproved:
+                    message = $"{userFullName} approved your friendship request";
+                    break;
+
+                default:
+                    message = "";
+                    break;
+            }
+
+            return message;
         }
     }
 }

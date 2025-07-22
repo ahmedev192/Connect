@@ -6,6 +6,7 @@ using Connect.DataAccess.Migrations;
 using Connect.Models;
 using Connect.Utilities.Service;
 using Connect.Utilities.Service.IService;
+using Connect.Utilities.StaticDetails;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -37,19 +38,20 @@ namespace Connect.Controllers
         public async Task<IActionResult> TogglePostLike(int postId)
         {
             var user = GetUserId();
+            var userName = GetUserFullName();
             if (user == null)
                 return Unauthorized();
 
             try
             {
-                var post = await _postService.GetPostById(postId);
                 var result = await _interactionService.TogglePostLikeAsync(postId, user.Value);
+                var post = await _postService.GetPostById(postId);
+                await _notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Comment, userName, postId);
+
 
                 if (result.SendNotification)
-                    await _notificationService.AddNewNotificationAsync(user.Value, "Liked", "Like"); var notificationNumber = await _notificationService.GetUnreadNotificationsCountAsync(user.Value);
-                await _hubContext.Clients.User(post.UserId.ToString())
-                    .SendAsync("ReceiveNotification", notificationNumber);
-
+                    await _notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Like, userName, postId);
+              
                 return PartialView("_Post", post);
             }
             catch
@@ -112,13 +114,20 @@ namespace Connect.Controllers
         public async Task<IActionResult> TogglePostFavorite(int postId)
         {
             var user = GetUserId();
+            var userName = GetUserFullName();
             if (user == null)
                 return Unauthorized();
+            var result = await _interactionService.TogglePostFavoriteAsync(postId, user.Value);
+
 
             try
             {
                 await _interactionService.TogglePostFavoriteAsync(postId, user.Value);
                 var post = await _postService.GetPostById(postId);
+                if (result.SendNotification)
+                    await _notificationService.AddNewNotificationAsync(post.UserId, NotificationType.Favorite, userName, postId);
+
+
                 return PartialView("_Post", post);
             }
             catch

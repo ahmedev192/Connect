@@ -24,6 +24,11 @@ namespace Connect.Controllers.Base
             return int.TryParse(loggedInUserId, out var id) ? id : null;
         }
 
+        protected string? GetUserFullName()
+        {
+            var loggedInUserFullName = User.FindFirstValue(ClaimTypes.Name);
+            return loggedInUserFullName;
+        }
 
         protected Task<User?> GetCurrentUserAsync()
         {

@@ -12,7 +12,8 @@ namespace Connect.Utilities.Service.IService
         Task<NotificationDTO> TogglePostLikeAsync(int postId, int userId);
         Task AddCommentAsync(Comment comment, int userId);
         Task<int?> DeleteCommentAsync(int commentId, int userId);
-        Task TogglePostFavoriteAsync(int postId, int userId);
+        Task<NotificationDTO> TogglePostFavoriteAsync(int postId, int userId);
+
         Task AddPostReportAsync(int postId, int userId);
     }
 }

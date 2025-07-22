@@ -28,7 +28,7 @@ namespace Connect.Utilities.Service
         {
             var response = new NotificationDTO()
             {
-                Success = false,
+                Success = true,
                 SendNotification = false
             };
             var post = await _context.Posts
@@ -55,7 +55,6 @@ namespace Connect.Utilities.Service
 
             }
 
-            response.Success = true;
 
             return response;
         }
@@ -80,8 +79,13 @@ namespace Connect.Utilities.Service
             return comment.PostId;
         }
 
-        public async Task TogglePostFavoriteAsync(int postId, int userId)
+        public async Task<NotificationDTO> TogglePostFavoriteAsync(int postId, int userId)
         {
+            var response = new NotificationDTO()
+            {
+                Success = true,
+                SendNotification = false
+            };
             var favorite = await _context.Favorites
                 .FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
 
@@ -91,6 +95,11 @@ namespace Connect.Utilities.Service
                 await _context.Favorites.AddAsync(new Favorite { PostId = postId, UserId = userId });
 
             await _context.SaveChangesAsync();
+            response.SendNotification = true;
+
+            return response;
+
+
         }
 
         public async Task AddPostReportAsync(int postId, int userId)

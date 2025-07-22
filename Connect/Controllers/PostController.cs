@@ -53,6 +53,9 @@ namespace Connect.Controllers
         public async Task<IActionResult> Create(Post post, IFormFile? file)
         {
             var user = GetUserId();
+            var userName = GetUserFullName();
+
+
             if (user == null)
                 return Unauthorized();
 
