@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Connect.Utilities.Service.IService;
 
 namespace Connect.Utilities.Service
 {
-
     public class HashtagService : IHashtagService
     {
         public List<string> ExtractHashtags(string postText)

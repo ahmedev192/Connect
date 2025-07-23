@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 using Connect.Utilities.Service.IService;
 using Microsoft.AspNetCore.Hosting;
@@ -9,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace Connect.Utilities.Service
 {
-
     public class FileUploadService : IFileUploadService
     {
         private readonly IWebHostEnvironment _env;
@@ -18,6 +15,7 @@ namespace Connect.Utilities.Service
         {
             _env = env;
         }
+
         public async Task<string?> SaveImageAsync(IFormFile file, string folderName)
         {
             if (file == null || file.Length == 0) return null;
@@ -40,12 +38,11 @@ namespace Connect.Utilities.Service
                 // Return the public-facing path
                 return "/" + relativePath.Replace("\\", "/");
             }
-            catch (Exception ex)
+            catch
             {
                 return null;
             }
         }
-
 
         public Task<bool> DeleteImageAsync(string imageUrl)
         {
@@ -62,7 +59,7 @@ namespace Connect.Utilities.Service
                     return Task.FromResult(true);
                 }
             }
-            catch (Exception ex)
+            catch
             {
             }
 
@@ -77,8 +74,5 @@ namespace Connect.Utilities.Service
             string absolutePath = Path.Combine(_env.WebRootPath, imageUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
             return File.Exists(absolutePath) ? imageUrl : fallbackRelativePath;
         }
-
-
     }
-
 }

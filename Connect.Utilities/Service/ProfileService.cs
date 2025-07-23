@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Connect.DataAccess.Data;
+using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Models.ViewModels;
 using Connect.Utilities.Service.IService;
@@ -19,18 +17,18 @@ namespace Connect.Utilities.Service
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IFileUploadService _fileUploadService;
-        private readonly ApplicationDbContext _context;
+        private readonly IGenericRepository<User> _userRepository;
 
         public ProfileService(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IFileUploadService fileUploadService,
-            ApplicationDbContext context)
+            IGenericRepository<User> userRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _fileUploadService = fileUploadService;
-            _context = context;
+            _userRepository = userRepository;
         }
 
         public async Task<SettingsViewModel> GetProfileViewModelAsync(User user)
@@ -126,8 +124,7 @@ namespace Connect.Utilities.Service
                 return new ServiceResult { Succeeded = false, ErrorMessage = "Failed to upload profile picture." };
 
             user.ProfilePictureUrl = filePath;
-            _context.Update(user);
-            await _context.SaveChangesAsync();
+            _userRepository.Update(user);
 
             return new ServiceResult { Succeeded = true };
         }

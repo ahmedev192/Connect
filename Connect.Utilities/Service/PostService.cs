@@ -1,26 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Connect.DataAccess.Data;
+using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
 using Microsoft.EntityFrameworkCore;
 
 namespace Connect.Utilities.Service
 {
+    public static class QueryablePostExtensions
+    {
+        public static IQueryable<Post> IncludeAllPostData(this IQueryable<Post> query)
+        {
+            return query
+                .Include(p => p.User)
+                .Include(p => p.Likes)
+                .Include(p => p.Favorites)
+                .Include(p => p.Comments).ThenInclude(c => c.User)
+                .Include(p => p.Reports);
+        }
+    }
+
     public class PostService : IPostService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IGenericRepository<Post> _postRepository;
+        private readonly IGenericRepository<Hashtag> _hashtagRepository;
+        private readonly IGenericRepository<Like> _likeRepository;
+        private readonly IGenericRepository<Favorite> _favoriteRepository;
+        private readonly IGenericRepository<Report> _reportRepository;
+        private readonly IGenericRepository<Comment> _commentRepository;
         private readonly IFileUploadService _fileUploadService;
         private readonly IHashtagService _hashtagService;
         private readonly INotificationService _notificationService;
 
-
-        public PostService(ApplicationDbContext context, IFileUploadService fileUploadService, IHashtagService hashtagService, INotificationService notificationService)
+        public PostService(
+            IGenericRepository<Post> postRepository,
+            IGenericRepository<Hashtag> hashtagRepository,
+            IGenericRepository<Like> likeRepository,
+            IGenericRepository<Favorite> favoriteRepository,
+            IGenericRepository<Report> reportRepository,
+            IGenericRepository<Comment> commentRepository,
+            IFileUploadService fileUploadService,
+            IHashtagService hashtagService,
+            INotificationService notificationService)
         {
-            _context = context;
+            _postRepository = postRepository;
+            _hashtagRepository = hashtagRepository;
+            _likeRepository = likeRepository;
+            _favoriteRepository = favoriteRepository;
+            _reportRepository = reportRepository;
+            _commentRepository = commentRepository;
             _fileUploadService = fileUploadService;
             _hashtagService = hashtagService;
             _notificationService = notificationService;
@@ -28,20 +57,21 @@ namespace Connect.Utilities.Service
 
         public async Task<Post> GetPostById(int postId)
         {
-            var post = await _context.Posts
-                .Where(p => p.Id == postId)
+            var post = await _postRepository.Query(noTracking: true)
                 .IncludeAllPostData()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(p => p.Id == postId);
 
             return await ProcessPosts(post);
         }
 
-        public async Task<List<Post>> ProcessPosts(List<Post> posts)
+        public async Task<List<Post>> ProcessPosts(IEnumerable<Post> posts)
         {
             if (posts == null || !posts.Any())
             {
-                return posts ?? new List<Post>();
+                return new List<Post>();
             }
+
+            var processedPosts = new List<Post>();
 
             foreach (var post in posts)
             {
@@ -51,7 +81,6 @@ namespace Connect.Utilities.Service
                         post.ImageUrl,
                         "/images/placeholders/post-placeholder.jpg"
                     );
-
                 }
 
                 if (post.User != null)
@@ -61,9 +90,11 @@ namespace Connect.Utilities.Service
                         "/images/avatars/user.png"
                     );
                 }
+
+                processedPosts.Add(post);
             }
 
-            return posts;
+            return processedPosts;
         }
 
         public async Task<Post> ProcessPosts(Post post)
@@ -78,21 +109,19 @@ namespace Connect.Utilities.Service
             return posts.FirstOrDefault();
         }
 
-
         public async Task CreatePostAsync(Post post)
         {
-            await _context.Posts.AddAsync(post);
-            await _context.SaveChangesAsync();
+            await _postRepository.AddAsync(post);
 
             var postHashtags = _hashtagService.ExtractHashtags(post.Content);
             foreach (var hashTag in postHashtags)
             {
-                var hashtagDb = await _context.Hashtags.FirstOrDefaultAsync(n => n.Name == hashTag);
-                if (hashtagDb != null)
+                var hashtag = await _hashtagRepository.FirstOrDefaultAsync(h => h.Name == hashTag);
+                if (hashtag != null)
                 {
-                    hashtagDb.Count += 1;
-                    hashtagDb.DateUpdated = DateTime.UtcNow;
-                    _context.Hashtags.Update(hashtagDb);
+                    hashtag.Count += 1;
+                    hashtag.DateUpdated = DateTime.UtcNow;
+                    _hashtagRepository.Update(hashtag);
                 }
                 else
                 {
@@ -103,15 +132,14 @@ namespace Connect.Utilities.Service
                         DateCreated = DateTime.UtcNow,
                         DateUpdated = DateTime.UtcNow
                     };
-                    await _context.Hashtags.AddAsync(newHashtag);
+                    await _hashtagRepository.AddAsync(newHashtag);
                 }
-                await _context.SaveChangesAsync();
             }
         }
 
         public async Task<ServiceResult> DeletePostAsync(int postId, int userId)
         {
-            var post = await _context.Posts.FindAsync(postId);
+            var post = await _postRepository.GetByIdAsync(postId);
             if (post == null || post.UserId != userId)
                 return new ServiceResult { Succeeded = false, ErrorMessage = "Post not found or unauthorized." };
 
@@ -121,45 +149,35 @@ namespace Connect.Utilities.Service
             var postHashtags = _hashtagService.ExtractHashtags(post.Content);
             foreach (var hashtag in postHashtags)
             {
-                var hashtagDb = await _context.Hashtags.FirstOrDefaultAsync(n => n.Name == hashtag);
+                var hashtagDb = await _hashtagRepository.FirstOrDefaultAsync(h => h.Name == hashtag);
                 if (hashtagDb != null)
                 {
                     hashtagDb.Count -= 1;
                     hashtagDb.DateUpdated = DateTime.UtcNow;
-                    _context.Hashtags.Update(hashtagDb);
-                    await _context.SaveChangesAsync();
+                    _hashtagRepository.Update(hashtagDb);
                 }
             }
 
-            var associatedLikes = _context.Likes.Where(l => l.PostId == postId);
-            var associatedFavorites = _context.Favorites.Where(f => f.PostId == postId);
-            var associatedReports = _context.Reports.Where(r => r.PostId == postId);
-            var associatedComments = _context.Comments.Where(c => c.PostId == postId);
+            var associatedLikes = await _likeRepository.FindAsync(l => l.PostId == postId);
+            var associatedFavorites = await _favoriteRepository.FindAsync(f => f.PostId == postId);
+            var associatedReports = await _reportRepository.FindAsync(r => r.PostId == postId);
+            var associatedComments = await _commentRepository.FindAsync(c => c.PostId == postId);
 
-            _context.Likes.RemoveRange(associatedLikes);
-            _context.Favorites.RemoveRange(associatedFavorites);
-            _context.Reports.RemoveRange(associatedReports);
-            _context.Comments.RemoveRange(associatedComments);
+            await _postRepository.ExecuteInTransactionAsync(async () =>
+            {
+                if (associatedLikes.Any())
+                    _likeRepository.RemoveRange(associatedLikes);
+                if (associatedFavorites.Any())
+                    _favoriteRepository.RemoveRange(associatedFavorites);
+                if (associatedReports.Any())
+                    _reportRepository.RemoveRange(associatedReports);
+                if (associatedComments.Any())
+                    _commentRepository.RemoveRange(associatedComments);
 
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
+                _postRepository.Remove(post);
+            });
 
             return new ServiceResult { Succeeded = true };
-        }
-
-
-    }
-
-    public static class QueryablePostExtensions
-    {
-        public static IQueryable<Post> IncludeAllPostData(this IQueryable<Post> query)
-        {
-            return query
-                .Include(p => p.User)
-                .Include(p => p.Likes)
-                .Include(p => p.Favorites)
-                .Include(p => p.Comments).ThenInclude(c => c.User)
-                .Include(p => p.Reports);
         }
     }
 }

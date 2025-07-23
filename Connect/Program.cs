@@ -23,8 +23,10 @@ namespace Connect
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(dbConnectionString));
+
+
+
             builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IHashtagService, HashtagService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddScoped<IPostService, PostService>();
@@ -35,6 +37,7 @@ namespace Connect
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
 
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 
 

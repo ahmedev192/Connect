@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Connect.DataAccess.Data;
+using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Models.DTOs;
 using Connect.Utilities.Service.IService;
@@ -13,48 +11,57 @@ namespace Connect.Utilities.Service
 {
     public class InteractionService : IInteractionService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IGenericRepository<Post> _postRepository;
+        private readonly IGenericRepository<Like> _likeRepository;
+        private readonly IGenericRepository<Comment> _commentRepository;
+        private readonly IGenericRepository<Favorite> _favoriteRepository;
+        private readonly IGenericRepository<Report> _reportRepository;
         private readonly INotificationService _notificationService;
 
-
-
-        public InteractionService(ApplicationDbContext context, INotificationService notificationService)
+        public InteractionService(
+            IGenericRepository<Post> postRepository,
+            IGenericRepository<Like> likeRepository,
+            IGenericRepository<Comment> commentRepository,
+            IGenericRepository<Favorite> favoriteRepository,
+            IGenericRepository<Report> reportRepository,
+            INotificationService notificationService)
         {
-            _context = context;
+            _postRepository = postRepository;
+            _likeRepository = likeRepository;
+            _commentRepository = commentRepository;
+            _favoriteRepository = favoriteRepository;
+            _reportRepository = reportRepository;
             _notificationService = notificationService;
         }
 
         public async Task<NotificationDTO> TogglePostLikeAsync(int postId, int userId)
         {
-            var response = new NotificationDTO()
+            var response = new NotificationDTO
             {
                 Success = true,
                 SendNotification = false
             };
-            var post = await _context.Posts
-                .Include(p => p.Likes)
-                .FirstOrDefaultAsync(p => p.Id == postId);
+
+            var post = await _postRepository.FirstOrDefaultAsync(
+                p => p.Id == postId,
+                noTracking: true,
+                p => p.Likes);
 
             if (post == null)
                 throw new Exception("Post not found");
 
-            var existingLike = await _context.Likes
-                .FirstOrDefaultAsync(pl => pl.PostId == postId && pl.UserId == userId);
+            var existingLike = await _likeRepository.FirstOrDefaultAsync(
+                pl => pl.PostId == postId && pl.UserId == userId);
 
-            if (existingLike != null) { 
-                _context.Likes.Remove(existingLike);
-                await _context.SaveChangesAsync();
-
+            if (existingLike != null)
+            {
+                _likeRepository.Remove(existingLike);
             }
-            else { 
-                await _context.Likes.AddAsync(new Like { PostId = postId, UserId = userId });
-                await _context.SaveChangesAsync();
+            else
+            {
+                await _likeRepository.AddAsync(new Like { PostId = postId, UserId = userId });
                 response.SendNotification = true;
-
-
-
             }
-
 
             return response;
         }
@@ -64,48 +71,47 @@ namespace Connect.Utilities.Service
             comment.UserId = userId;
             comment.DateCreated = DateTime.UtcNow;
             comment.DateUpdated = DateTime.UtcNow;
-            await _context.Comments.AddAsync(comment);
-            await _context.SaveChangesAsync();
+            await _commentRepository.AddAsync(comment);
         }
 
         public async Task<int?> DeleteCommentAsync(int commentId, int userId)
         {
-            var comment = await _context.Comments.FindAsync(commentId);
+            var comment = await _commentRepository.GetByIdAsync(commentId);
             if (comment == null || comment.UserId != userId)
                 return null;
 
-            _context.Comments.Remove(comment);
-            await _context.SaveChangesAsync();
+            _commentRepository.Remove(comment);
             return comment.PostId;
         }
 
         public async Task<NotificationDTO> TogglePostFavoriteAsync(int postId, int userId)
         {
-            var response = new NotificationDTO()
+            var response = new NotificationDTO
             {
                 Success = true,
                 SendNotification = false
             };
-            var favorite = await _context.Favorites
-                .FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
+
+            var favorite = await _favoriteRepository.FirstOrDefaultAsync(
+                f => f.PostId == postId && f.UserId == userId);
 
             if (favorite != null)
-                _context.Favorites.Remove(favorite);
+            {
+                _favoriteRepository.Remove(favorite);
+            }
             else
-                await _context.Favorites.AddAsync(new Favorite { PostId = postId, UserId = userId });
-
-            await _context.SaveChangesAsync();
-            response.SendNotification = true;
+            {
+                await _favoriteRepository.AddAsync(new Favorite { PostId = postId, UserId = userId });
+                response.SendNotification = true;
+            }
 
             return response;
-
-
         }
 
         public async Task AddPostReportAsync(int postId, int userId)
         {
-            var existingReport = await _context.Reports
-                .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId);
+            var existingReport = await _reportRepository.FirstOrDefaultAsync(
+                r => r.PostId == postId && r.UserId == userId);
 
             if (existingReport != null)
                 throw new Exception("You have already reported this post.");
@@ -116,20 +122,13 @@ namespace Connect.Utilities.Service
                 UserId = userId,
                 DateCreated = DateTime.UtcNow
             };
-            await _context.Reports.AddAsync(report);
-            await _context.SaveChangesAsync();
+            await _reportRepository.AddAsync(report);
 
-
-
-
-
-
-            var post = await _context.Posts.FirstOrDefaultAsync(n => n.Id == postId);
+            var post = await _postRepository.GetByIdAsync(postId);
             if (post != null)
             {
                 post.NrOfReports += 1;
-                _context.Posts.Update(post);
-                await _context.SaveChangesAsync();
+                _postRepository.Update(post);
             }
         }
     }

@@ -13,7 +13,7 @@ namespace Connect.Utilities.Service.IService
 
         Task CreatePostAsync(Post post);
         Task<ServiceResult> DeletePostAsync(int postId, int userId);
-        Task<List<Post>> ProcessPosts(List<Post> posts);
+        Task<List<Post>> ProcessPosts(IEnumerable<Post> posts);
         Task<Post> ProcessPosts(Post post);
 
 

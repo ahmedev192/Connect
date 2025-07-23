@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Connect.DataAccess.Data;
+using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
 using Microsoft.EntityFrameworkCore;
@@ -12,61 +10,47 @@ namespace Connect.Utilities.Service
 {
     public class AdminService : IAdminService
     {
-        private readonly ApplicationDbContext _context;
-        public AdminService(ApplicationDbContext context)
+        private readonly IGenericRepository<Post> _postRepository;
+        private readonly IGenericRepository<Report> _reportRepository;
+
+        public AdminService(
+            IGenericRepository<Post> postRepository,
+            IGenericRepository<Report> reportRepository)
         {
-            _context = context;
+            _postRepository = postRepository;
+            _reportRepository = reportRepository;
         }
 
         public async Task<List<Post>> GetReportedPostsAsync()
         {
-
-            var posts = await _context.Posts.Include(n => n.User)
-                .Where(n => n.NrOfReports >= 1 && ! n.IsDeleted )
-                .ToListAsync();
-
-            return posts;
+            return (await _postRepository.FindAsync(
+                p => p.NrOfReports >= 1,
+                noTracking: true,
+                p => p.User)).ToList();
         }
-
-
-
-
-
 
         public async Task ApproveReportAsync(int postId)
         {
-            var postDb = await _context.Posts.FirstOrDefaultAsync(n => n.Id == postId);
-
-            if (postDb != null)
+            var post = await _postRepository.GetByIdAsync(postId);
+            if (post != null)
             {
-                postDb.IsDeleted = true;
-                _context.Posts.Update(postDb);
-                await _context.SaveChangesAsync();
+                await _postRepository.SoftDeleteAsync(post);
             }
         }
 
-
-
-
-
-
-
         public async Task RejectReportAsync(int postId)
         {
-            var postDb = await _context.Posts.FirstOrDefaultAsync(n => n.Id == postId);
-
-            if (postDb != null)
+            var post = await _postRepository.GetByIdAsync(postId);
+            if (post != null)
             {
-                postDb.NrOfReports = 0;
-                _context.Posts.Update(postDb);
-                await _context.SaveChangesAsync();
+                post.NrOfReports = 0;
+                _postRepository.Update(post);
             }
 
-            var postReports = await _context.Reports.Where(n => n.PostId == postId).ToListAsync();
+            var postReports = await _reportRepository.FindAsync(r => r.PostId == postId);
             if (postReports.Any())
             {
-                _context.Reports.RemoveRange(postReports);
-                await _context.SaveChangesAsync();
+                _reportRepository.RemoveRange(postReports);
             }
         }
     }

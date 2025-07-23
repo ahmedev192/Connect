@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Connect.DataAccess.Data;
 using Connect.DataAccess.Hubs;
+using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
 using Connect.Utilities.StaticDetails;
@@ -15,19 +13,20 @@ namespace Connect.Utilities.Service
 {
     public class NotificationService : INotificationService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IGenericRepository<Notification> _notificationRepository;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-
-        public NotificationService(ApplicationDbContext context, IHubContext<NotificationHub> hubContext)
+        public NotificationService(
+            IGenericRepository<Notification> notificationRepository,
+            IHubContext<NotificationHub> hubContext)
         {
-            _context = context;
+            _notificationRepository = notificationRepository;
             _hubContext = hubContext;
         }
 
         public async Task AddNewNotificationAsync(int userId, string notificationType, string userFullName, int? postId)
         {
-            var newNotification = new Notification()
+            var newNotification = new Notification
             {
                 UserId = userId,
                 Message = GetPostMessage(notificationType, userFullName),
@@ -38,52 +37,39 @@ namespace Connect.Utilities.Service
                 DateUpdated = DateTime.UtcNow
             };
 
-            await _context.Notifications.AddAsync(newNotification);
-            await _context.SaveChangesAsync();
+            await _notificationRepository.AddAsync(newNotification);
             var notificationNumber = await GetUnreadNotificationsCountAsync(userId);
 
             await _hubContext.Clients.User(userId.ToString())
                 .SendAsync("ReceiveNotification", notificationNumber);
         }
+
         public async Task<int> GetUnreadNotificationsCountAsync(int userId)
         {
-            var count = await _context.Notifications
-                .Where(n => n.UserId == userId && !n.IsRead)
-                .CountAsync();
-
-            return count;
+            return await _notificationRepository.CountAsync(n => n.UserId == userId && !n.IsRead);
         }
-
-
-
-
-
 
         public async Task<List<Notification>> GetNotifications(int userId)
         {
-            var allNotifications = await _context.Notifications.Where(n => n.UserId == userId)
-                .OrderBy(n => n.IsRead)
-                .ThenByDescending(n => n.DateCreated)
-                .ToListAsync();
-
-            return allNotifications;
+            return (await _notificationRepository.GetPagedAsync(
+                page: 1,
+                pageSize: int.MaxValue, // Fetch all notifications
+                orderBy: n => n.DateCreated,
+                descending: true,
+                predicate: n => n.UserId == userId,
+                noTracking: true)).ToList();
         }
-
 
         public async Task SetNotificationAsReadAsync(int notificationId)
         {
-            var notificationDb = await _context.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId);
-
-            if (notificationDb != null)
+            var notification = await _notificationRepository.GetByIdAsync(notificationId);
+            if (notification != null)
             {
-                notificationDb.DateUpdated = DateTime.UtcNow;
-                notificationDb.IsRead = true;
-
-                _context.Notifications.Update(notificationDb);
-                await _context.SaveChangesAsync();
+                notification.DateUpdated = DateTime.UtcNow;
+                notification.IsRead = true;
+                _notificationRepository.Update(notification);
             }
         }
-
 
         private string GetPostMessage(string notificationType, string userFullName)
         {
@@ -100,7 +86,7 @@ namespace Connect.Utilities.Service
                     break;
 
                 case NotificationType.Comment:
-                    message = $"{userFullName} added a coment to your post";
+                    message = $"{userFullName} added a comment to your post";
                     break;
 
                 case NotificationType.FriendRequest:
