@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36203.30
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect", "Connect\Connect.csproj", "{BA4DB749-5A73-4793-B853-A6172FAB1C2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.Web", "Connect.Web\Connect.Web.csproj", "{BA4DB749-5A73-4793-B853-A6172FAB1C2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.DataAccess", "Connect.DataAccess\Connect.DataAccess.csproj", "{7F38F2A7-65AE-4E49-BA0A-DF23C5D7605F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.Infrastructure", "Connect.Infrastructure\Connect.Infrastructure.csproj", "{7F38F2A7-65AE-4E49-BA0A-DF23C5D7605F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.Models", "Connect.Models\Connect.Models.csproj", "{3EC86DDB-99CD-40EF-93A6-AF6F4294011E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.Domain", "Connect.Domain\Connect.Domain.csproj", "{3EC86DDB-99CD-40EF-93A6-AF6F4294011E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.Utilities", "Connect.Utilities\Connect.Utilities.csproj", "{A11EF3F5-16BF-4F34-B6E1-84E6979B6936}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connect.Application", "Connect.Application\Connect.Application.csproj", "{A11EF3F5-16BF-4F34-B6E1-84E6979B6936}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
