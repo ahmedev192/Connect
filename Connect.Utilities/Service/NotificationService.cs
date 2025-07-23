@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Connect.DataAccess.Data;
 using Connect.DataAccess.Hubs;
+using Connect.DataAccess.Repository;
 using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
@@ -13,14 +13,12 @@ namespace Connect.Utilities.Service
 {
     public class NotificationService : INotificationService
     {
-        private readonly IGenericRepository<Notification> _notificationRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        public NotificationService(
-            IGenericRepository<Notification> notificationRepository,
-            IHubContext<NotificationHub> hubContext)
+        public NotificationService(IUnitOfWork unitOfWork, IHubContext<NotificationHub> hubContext)
         {
-            _notificationRepository = notificationRepository;
+            _unitOfWork = unitOfWork;
             _hubContext = hubContext;
         }
 
@@ -37,7 +35,7 @@ namespace Connect.Utilities.Service
                 DateUpdated = DateTime.UtcNow
             };
 
-            await _notificationRepository.AddAsync(newNotification);
+            await _unitOfWork.NotificationRepository.AddAsync(newNotification);
             var notificationNumber = await GetUnreadNotificationsCountAsync(userId);
 
             await _hubContext.Clients.User(userId.ToString())
@@ -46,12 +44,12 @@ namespace Connect.Utilities.Service
 
         public async Task<int> GetUnreadNotificationsCountAsync(int userId)
         {
-            return await _notificationRepository.CountAsync(n => n.UserId == userId && !n.IsRead);
+            return await _unitOfWork.NotificationRepository.CountAsync(n => n.UserId == userId && !n.IsRead);
         }
 
         public async Task<List<Notification>> GetNotifications(int userId)
         {
-            return (await _notificationRepository.GetPagedAsync(
+            return (await _unitOfWork.NotificationRepository.GetPagedAsync(
                 page: 1,
                 pageSize: int.MaxValue, // Fetch all notifications
                 orderBy: n => n.DateCreated,
@@ -62,12 +60,13 @@ namespace Connect.Utilities.Service
 
         public async Task SetNotificationAsReadAsync(int notificationId)
         {
-            var notification = await _notificationRepository.GetByIdAsync(notificationId);
+            var notification = await _unitOfWork.NotificationRepository.GetByIdAsync(notificationId);
             if (notification != null)
             {
                 notification.DateUpdated = DateTime.UtcNow;
                 notification.IsRead = true;
-                _notificationRepository.Update(notification);
+                _unitOfWork.NotificationRepository.Update(notification);
+                await _unitOfWork.SaveChangesAsync();
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Connect.DataAccess.Data;
+using Connect.DataAccess.Repository;
 using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
@@ -23,33 +24,18 @@ namespace Connect.Utilities.Service
 
     public class PostService : IPostService
     {
-        private readonly IGenericRepository<Post> _postRepository;
-        private readonly IGenericRepository<Hashtag> _hashtagRepository;
-        private readonly IGenericRepository<Like> _likeRepository;
-        private readonly IGenericRepository<Favorite> _favoriteRepository;
-        private readonly IGenericRepository<Report> _reportRepository;
-        private readonly IGenericRepository<Comment> _commentRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IFileUploadService _fileUploadService;
         private readonly IHashtagService _hashtagService;
         private readonly INotificationService _notificationService;
 
         public PostService(
-            IGenericRepository<Post> postRepository,
-            IGenericRepository<Hashtag> hashtagRepository,
-            IGenericRepository<Like> likeRepository,
-            IGenericRepository<Favorite> favoriteRepository,
-            IGenericRepository<Report> reportRepository,
-            IGenericRepository<Comment> commentRepository,
+            IUnitOfWork unitOfWork,
             IFileUploadService fileUploadService,
             IHashtagService hashtagService,
             INotificationService notificationService)
         {
-            _postRepository = postRepository;
-            _hashtagRepository = hashtagRepository;
-            _likeRepository = likeRepository;
-            _favoriteRepository = favoriteRepository;
-            _reportRepository = reportRepository;
-            _commentRepository = commentRepository;
+            _unitOfWork = unitOfWork;
             _fileUploadService = fileUploadService;
             _hashtagService = hashtagService;
             _notificationService = notificationService;
@@ -57,7 +43,7 @@ namespace Connect.Utilities.Service
 
         public async Task<Post> GetPostById(int postId)
         {
-            var post = await _postRepository.Query(noTracking: true)
+            var post = await _unitOfWork.PostRepository.Query(noTracking: true)
                 .IncludeAllPostData()
                 .FirstOrDefaultAsync(p => p.Id == postId);
 
@@ -97,6 +83,7 @@ namespace Connect.Utilities.Service
             return processedPosts;
         }
 
+
         public async Task<Post> ProcessPosts(Post post)
         {
             if (post == null)
@@ -111,73 +98,78 @@ namespace Connect.Utilities.Service
 
         public async Task CreatePostAsync(Post post)
         {
-            await _postRepository.AddAsync(post);
-
-            var postHashtags = _hashtagService.ExtractHashtags(post.Content);
-            foreach (var hashTag in postHashtags)
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                var hashtag = await _hashtagRepository.FirstOrDefaultAsync(h => h.Name == hashTag);
-                if (hashtag != null)
+                await _unitOfWork.PostRepository.AddAsync(post);
+
+                var postHashtags = _hashtagService.ExtractHashtags(post.Content);
+                foreach (var hashTag in postHashtags)
                 {
-                    hashtag.Count += 1;
-                    hashtag.DateUpdated = DateTime.UtcNow;
-                    _hashtagRepository.Update(hashtag);
-                }
-                else
-                {
-                    var newHashtag = new Hashtag
+                    var hashtag = await _unitOfWork.HashtagRepository.FirstOrDefaultAsync(h => h.Name == hashTag);
+                    if (hashtag != null)
                     {
-                        Name = hashTag,
-                        Count = 1,
-                        DateCreated = DateTime.UtcNow,
-                        DateUpdated = DateTime.UtcNow
-                    };
-                    await _hashtagRepository.AddAsync(newHashtag);
+                        hashtag.Count += 1;
+                        hashtag.DateUpdated = DateTime.UtcNow;
+                        _unitOfWork.HashtagRepository.Update(hashtag);
+                    }
+                    else
+                    {
+                        var newHashtag = new Hashtag
+                        {
+                            Name = hashTag,
+                            Count = 1,
+                            DateCreated = DateTime.UtcNow,
+                            DateUpdated = DateTime.UtcNow
+                        };
+                        await _unitOfWork.HashtagRepository.AddAsync(newHashtag);
+                    }
                 }
-            }
+            });
         }
 
         public async Task<ServiceResult> DeletePostAsync(int postId, int userId)
         {
-            var post = await _postRepository.GetByIdAsync(postId);
+            var post = await _unitOfWork.PostRepository.GetByIdAsync(postId);
             if (post == null || post.UserId != userId)
                 return new ServiceResult { Succeeded = false, ErrorMessage = "Post not found or unauthorized." };
 
-            if (!string.IsNullOrEmpty(post.ImageUrl))
-                await _fileUploadService.DeleteImageAsync(post.ImageUrl);
-
-            var postHashtags = _hashtagService.ExtractHashtags(post.Content);
-            foreach (var hashtag in postHashtags)
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                var hashtagDb = await _hashtagRepository.FirstOrDefaultAsync(h => h.Name == hashtag);
-                if (hashtagDb != null)
+                if (!string.IsNullOrEmpty(post.ImageUrl))
+                    await _fileUploadService.DeleteImageAsync(post.ImageUrl);
+
+                var postHashtags = _hashtagService.ExtractHashtags(post.Content);
+                foreach (var hashtag in postHashtags)
                 {
-                    hashtagDb.Count -= 1;
-                    hashtagDb.DateUpdated = DateTime.UtcNow;
-                    _hashtagRepository.Update(hashtagDb);
+                    var hashtagDb = await _unitOfWork.HashtagRepository.FirstOrDefaultAsync(h => h.Name == hashtag);
+                    if (hashtagDb != null)
+                    {
+                        hashtagDb.Count -= 1;
+                        hashtagDb.DateUpdated = DateTime.UtcNow;
+                        _unitOfWork.HashtagRepository.Update(hashtagDb);
+                    }
                 }
-            }
 
-            var associatedLikes = await _likeRepository.FindAsync(l => l.PostId == postId);
-            var associatedFavorites = await _favoriteRepository.FindAsync(f => f.PostId == postId);
-            var associatedReports = await _reportRepository.FindAsync(r => r.PostId == postId);
-            var associatedComments = await _commentRepository.FindAsync(c => c.PostId == postId);
+                var associatedLikes = await _unitOfWork.LikeRepository.FindAsync(l => l.PostId == postId);
+                var associatedFavorites = await _unitOfWork.FavoriteRepository.FindAsync(f => f.PostId == postId);
+                var associatedReports = await _unitOfWork.ReportRepository.FindAsync(r => r.PostId == postId);
+                var associatedComments = await _unitOfWork.CommentRepository.FindAsync(c => c.PostId == postId);
 
-            await _postRepository.ExecuteInTransactionAsync(async () =>
-            {
                 if (associatedLikes.Any())
-                    _likeRepository.RemoveRange(associatedLikes);
+                    _unitOfWork.LikeRepository.RemoveRange(associatedLikes);
                 if (associatedFavorites.Any())
-                    _favoriteRepository.RemoveRange(associatedFavorites);
+                    _unitOfWork.FavoriteRepository.RemoveRange(associatedFavorites);
                 if (associatedReports.Any())
-                    _reportRepository.RemoveRange(associatedReports);
+                    _unitOfWork.ReportRepository.RemoveRange(associatedReports);
                 if (associatedComments.Any())
-                    _commentRepository.RemoveRange(associatedComments);
+                    _unitOfWork.CommentRepository.RemoveRange(associatedComments);
 
-                _postRepository.Remove(post);
+                _unitOfWork.PostRepository.Remove(post);
             });
 
             return new ServiceResult { Succeeded = true };
         }
+
+
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Connect.DataAccess.Data;
+using Connect.DataAccess.Repository;
 using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Models.DTOs;
@@ -12,31 +12,23 @@ namespace Connect.Utilities.Service
 {
     public class FriendService : IFriendService
     {
-        private readonly IGenericRepository<FriendRequest> _friendRequestRepository;
-        private readonly IGenericRepository<Friendship> _friendshipRepository;
-        private readonly IGenericRepository<User> _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IFileUploadService _fileUploadService;
 
-        public FriendService(
-            IGenericRepository<FriendRequest> friendRequestRepository,
-            IGenericRepository<Friendship> friendshipRepository,
-            IGenericRepository<User> userRepository,
-            IFileUploadService fileUploadService)
+        public FriendService(IUnitOfWork unitOfWork, IFileUploadService fileUploadService)
         {
-            _friendRequestRepository = friendRequestRepository;
-            _friendshipRepository = friendshipRepository;
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
             _fileUploadService = fileUploadService;
         }
 
         public async Task<FriendRequest> UpdateRequestAsync(int requestId, string newStatus)
         {
-            var request = await _friendRequestRepository.GetByIdAsync(requestId);
+            var request = await _unitOfWork.FriendRequestRepository.GetByIdAsync(requestId);
             if (request != null)
             {
                 request.Status = newStatus;
                 request.DateUpdated = DateTime.UtcNow;
-                _friendRequestRepository.Update(request);
+                _unitOfWork.FriendRequestRepository.Update(request);
 
                 if (newStatus == FriendshipStatus.Accepted)
                 {
@@ -46,8 +38,9 @@ namespace Connect.Utilities.Service
                         ReceiverId = request.ReceiverId,
                         DateCreated = DateTime.UtcNow
                     };
-                    await _friendshipRepository.AddAsync(friendship);
+                    await _unitOfWork.FriendshipRepository.AddAsync(friendship);
                 }
+                await _unitOfWork.SaveChangesAsync();
             }
             return request;
         }
@@ -62,53 +55,63 @@ namespace Connect.Utilities.Service
                 DateCreated = DateTime.UtcNow,
                 DateUpdated = DateTime.UtcNow
             };
-            await _friendRequestRepository.AddAsync(request);
+            await _unitOfWork.FriendRequestRepository.AddAsync(request);
         }
 
         public async Task RemoveFriendAsync(int friendshipId)
         {
-            var friendship = await _friendshipRepository.GetByIdAsync(friendshipId);
-            if (friendship != null)
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                _friendshipRepository.Remove(friendship);
-
-                var requests = await _friendRequestRepository.FindAsync(
-                    r => (r.SenderId == friendship.SenderId && r.ReceiverId == friendship.ReceiverId) ||
-                         (r.SenderId == friendship.ReceiverId && r.ReceiverId == friendship.SenderId));
-                if (requests.Any())
+                var friendship = await _unitOfWork.FriendshipRepository.GetByIdAsync(friendshipId);
+                if (friendship != null)
                 {
-                    _friendRequestRepository.RemoveRange(requests);
+                    _unitOfWork.FriendshipRepository.Remove(friendship);
+
+                    var requests = await _unitOfWork.FriendRequestRepository.FindAsync(
+                        r => (r.SenderId == friendship.SenderId && r.ReceiverId == friendship.ReceiverId) ||
+                             (r.SenderId == friendship.ReceiverId && r.ReceiverId == friendship.SenderId));
+                    if (requests.Any())
+                    {
+                        _unitOfWork.FriendRequestRepository.RemoveRange(requests);
+                    }
                 }
-            }
+            });
         }
 
         public async Task<List<UserWithFriendsCountDTO>> GetSuggestedFriendsAsync(int userId)
         {
-            var existingFriendIds = await _friendshipRepository.SelectAsync(
+            var existingFriendIds = await _unitOfWork.FriendshipRepository.SelectAsync(
                 f => f.SenderId == userId ? f.ReceiverId : f.SenderId,
                 f => f.SenderId == userId || f.ReceiverId == userId,
                 noTracking: true);
 
-            var pendingRequestIds = await _friendRequestRepository.SelectAsync(
+            var pendingRequestIds = await _unitOfWork.FriendRequestRepository.SelectAsync(
                 r => r.SenderId == userId ? r.ReceiverId : r.SenderId,
                 r => (r.SenderId == userId || r.ReceiverId == userId) && r.Status == FriendshipStatus.Pending,
                 noTracking: true);
 
-            var suggestedFriends = await _userRepository.TakeAsync(
+            var suggestedFriends = await _unitOfWork.UserRepository.TakeAsync(
                 count: 5,
                 predicate: u => u.Id != userId && !existingFriendIds.Contains(u.Id) && !pendingRequestIds.Contains(u.Id),
                 noTracking: true);
 
-            return suggestedFriends.Select(u => new UserWithFriendsCountDTO
+            var result = new List<UserWithFriendsCountDTO>();
+            foreach (var user in suggestedFriends)
             {
-                User = u,
-                FriendsCount = _friendshipRepository.CountAsync(f => f.SenderId == u.Id || f.ReceiverId == u.Id).Result
-            }).ToList();
+                var friendsCount = await _unitOfWork.FriendshipRepository.CountAsync(f => f.SenderId == user.Id || f.ReceiverId == user.Id);
+                result.Add(new UserWithFriendsCountDTO
+                {
+                    User = user,
+                    FriendsCount = friendsCount
+                });
+            }
+
+            return result;
         }
 
         public async Task<List<FriendRequest>> GetSentFriendRequestAsync(int userId)
         {
-            var friendRequests = await _friendRequestRepository.FindAsync(
+            var friendRequests = await _unitOfWork.FriendRequestRepository.FindAsync(
                 f => f.SenderId == userId && f.Status == FriendshipStatus.Pending,
                 noTracking: true,
                 f => f.Sender,
@@ -127,7 +130,7 @@ namespace Connect.Utilities.Service
 
         public async Task<List<FriendRequest>> GetReceivedFriendRequestAsync(int userId)
         {
-            return (await _friendRequestRepository.FindAsync(
+            return (await _unitOfWork.FriendRequestRepository.FindAsync(
                 f => f.ReceiverId == userId && f.Status == FriendshipStatus.Pending,
                 noTracking: true,
                 f => f.Sender,
@@ -136,7 +139,7 @@ namespace Connect.Utilities.Service
 
         public async Task<List<Friendship>> GetFriendsAsync(int userId)
         {
-            return (await _friendshipRepository.FindAsync(
+            return (await _unitOfWork.FriendshipRepository.FindAsync(
                 f => f.SenderId == userId || f.ReceiverId == userId,
                 noTracking: true,
                 f => f.Sender,

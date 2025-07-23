@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Connect.DataAccess.Data;
+using Connect.DataAccess.Repository;
 using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Models.ViewModels;
@@ -17,18 +17,18 @@ namespace Connect.Utilities.Service
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IFileUploadService _fileUploadService;
-        private readonly IGenericRepository<User> _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ProfileService(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IFileUploadService fileUploadService,
-            IGenericRepository<User> userRepository)
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _fileUploadService = fileUploadService;
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<SettingsViewModel> GetProfileViewModelAsync(User user)
@@ -124,7 +124,8 @@ namespace Connect.Utilities.Service
                 return new ServiceResult { Succeeded = false, ErrorMessage = "Failed to upload profile picture." };
 
             user.ProfilePictureUrl = filePath;
-            _userRepository.Update(user);
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveChangesAsync();
 
             return new ServiceResult { Succeeded = true };
         }

@@ -19,34 +19,12 @@ namespace Connect
             var builder = WebApplication.CreateBuilder(args);
             string dbConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(dbConnectionString));
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(dbConnectionString));
 
-
-
-            builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-            builder.Services.AddScoped<IHashtagService, HashtagService>();
-            builder.Services.AddScoped<IUsersService, UsersService>();
-            builder.Services.AddScoped<IPostService, PostService>();
-            builder.Services.AddScoped<IProfileService, ProfileService>();
-            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-            builder.Services.AddScoped<IFriendService, FriendService>();
-            builder.Services.AddScoped<IInteractionService, InteractionService>();
-            builder.Services.AddScoped<INotificationService, NotificationService>();
-            builder.Services.AddScoped<IAdminService, AdminService>();
-
-            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-
-
-
-
-
-            builder.Services.AddRazorPages();
-            builder.Services.AddScoped<IEmailSender, EmailSender>();
-
+            // Configure Identity
             builder.Services
                 .AddIdentity<User, IdentityRole<int>>(options =>
                 {
@@ -57,9 +35,7 @@ namespace Connect
                     options.Password.RequireDigit = false;
                     options.Password.RequireLowercase = false;
                     options.Password.RequireUppercase = false;
-                    //options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequiredLength = 4;
-
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -68,57 +44,53 @@ namespace Connect
             {
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Account/AccessDenied";
-
             });
+
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
-
-
-
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Auth:Google:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"] ?? "";
-        options.CallbackPath = "/signin-google";
-        options.Scope.Add("profile");
+                .AddGoogle(options =>
+                {
+                    options.ClientId = builder.Configuration["Auth:Google:ClientId"] ?? "";
+                    options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"] ?? "";
+                    options.CallbackPath = "/signin-google";
+                    options.Scope.Add("profile");
+                })
+                .AddGitHub(options =>
+                {
+                    options.ClientId = builder.Configuration["Auth:GitHub:ClientId"] ?? "";
+                    options.ClientSecret = builder.Configuration["Auth:GitHub:ClientSecret"] ?? "";
+                    options.CallbackPath = "/signin-github";
+                });
 
+            // Register SignalR
+            builder.Services.AddSignalR();
 
-    }).AddGitHub(options =>
-    {
-        options.ClientId = builder.Configuration["Auth:GitHub:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Auth:GitHub:ClientSecret"] ?? "";
-        options.CallbackPath = "/signin-github";
-    });
+            // Register Unit of Work
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            // Register Services
+            builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+            builder.Services.AddScoped<IHashtagService, HashtagService>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
+            builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<IFriendService, FriendService>();
+            builder.Services.AddScoped<IInteractionService, InteractionService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IEmailSender, EmailSender>();
 
-
-            builder.Services.AddSignalR(); // Register SignalR services
-
-
+            builder.Services.AddRazorPages();
 
             var app = builder.Build();
 
-            app.UseAuthentication();
-            app.MapRazorPages();
-
-            //bad code,  it's not supporting the migrations and not compatable with EF
-
-            //using (var scope = builder.Services.BuildServiceProvider().CreateScope())
-            //{
-            //    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            //    // Ensure the database is created and seed initial data
-            //    dbContext.Database.EnsureCreated();
-            //    DbInitializer.SeedAsync(dbContext).GetAwaiter().GetResult();
-            //}
-
-
-
+            // Seed database and apply migrations
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-
                 try
                 {
                     var userManager = services.GetRequiredService<UserManager<User>>();
@@ -129,11 +101,7 @@ namespace Connect
                     var logger = services.GetRequiredService<ILogger<Program>>();
 
                     await dbContext.Database.MigrateAsync();
-
                     await DbInitializer.SeedAsync(dbContext, logger);
-
-
-
                 }
                 catch (Exception ex)
                 {
@@ -142,29 +110,24 @@ namespace Connect
                 }
             }
 
-
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-
-
+            app.MapRazorPages();
             app.MapHub<NotificationHub>("/notificationHub");
-
 
             app.Run();
         }

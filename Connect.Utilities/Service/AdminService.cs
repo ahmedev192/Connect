@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Connect.DataAccess.Data;
+using Connect.DataAccess.Repository;
 using Connect.DataAccess.Repository.IRepository;
 using Connect.Models;
 using Connect.Utilities.Service.IService;
@@ -10,20 +10,16 @@ namespace Connect.Utilities.Service
 {
     public class AdminService : IAdminService
     {
-        private readonly IGenericRepository<Post> _postRepository;
-        private readonly IGenericRepository<Report> _reportRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AdminService(
-            IGenericRepository<Post> postRepository,
-            IGenericRepository<Report> reportRepository)
+        public AdminService(IUnitOfWork unitOfWork)
         {
-            _postRepository = postRepository;
-            _reportRepository = reportRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<Post>> GetReportedPostsAsync()
         {
-            return (await _postRepository.FindAsync(
+            return (await _unitOfWork.PostRepository.FindAsync(
                 p => p.NrOfReports >= 1,
                 noTracking: true,
                 p => p.User)).ToList();
@@ -31,27 +27,30 @@ namespace Connect.Utilities.Service
 
         public async Task ApproveReportAsync(int postId)
         {
-            var post = await _postRepository.GetByIdAsync(postId);
+            var post = await _unitOfWork.PostRepository.GetByIdAsync(postId);
             if (post != null)
             {
-                await _postRepository.SoftDeleteAsync(post);
+                await _unitOfWork.PostRepository.SoftDeleteAsync(post);
             }
         }
 
         public async Task RejectReportAsync(int postId)
         {
-            var post = await _postRepository.GetByIdAsync(postId);
-            if (post != null)
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                post.NrOfReports = 0;
-                _postRepository.Update(post);
-            }
+                var post = await _unitOfWork.PostRepository.GetByIdAsync(postId);
+                if (post != null)
+                {
+                    post.NrOfReports = 0;
+                    _unitOfWork.PostRepository.Update(post);
+                }
 
-            var postReports = await _reportRepository.FindAsync(r => r.PostId == postId);
-            if (postReports.Any())
-            {
-                _reportRepository.RemoveRange(postReports);
-            }
+                var postReports = await _unitOfWork.ReportRepository.FindAsync(r => r.PostId == postId);
+                if (postReports.Any())
+                {
+                    _unitOfWork.ReportRepository.RemoveRange(postReports);
+                }
+            });
         }
     }
 }
