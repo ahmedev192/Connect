@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Connect.Domain.Entities;
 
-namespace Connect.ViewModels
+namespace Connect.Web.ViewModels
 {
     public class UserProfileViewModel
     {

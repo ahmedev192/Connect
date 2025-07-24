@@ -1,14 +1,20 @@
+using AutoMapper;
+using Connect.Application.Interfaces;
+using Connect.Application.Mappings;
+using Connect.Application.Service;
+using Connect.Domain.Entities;
+using Connect.Domain.Entities;
 using Connect.Infrastructure.Data;
-using Connect.Infrastructure.Hubs;
 using Connect.Infrastructure.Repository;
 using Connect.Infrastructure.Repository.IRepository;
-using Connect.Domain;
-using Connect.Application.Service;
-using Connect.Application.Interfaces;
+using Connect.Web.Hubs;
+using Connect.Web.Mappings;
+using Connect.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Connect
 {
@@ -83,9 +89,21 @@ namespace Connect
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<IEmailSender, EmailSender>();
 
+            builder.Services.AddScoped<INotificationDispatcher, SignalRNotificationDispatcher>();
+            builder.Services.AddAutoMapper(typeof(MappingProfile), typeof(WebMappingProfile)); // Register both mapping profiles
+           
             builder.Services.AddRazorPages();
+            builder.Services.AddAutoMapper(typeof(WebMappingProfile) , typeof(MappingProfile));
+
 
             var app = builder.Build();
+
+
+
+
+         
+        
+
 
             // Seed database and apply migrations
             using (var scope = app.Services.CreateScope())

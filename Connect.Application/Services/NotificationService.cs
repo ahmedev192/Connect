@@ -1,27 +1,26 @@
 ﻿using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Connect.Infrastructure.Hubs;
 using Connect.Infrastructure.Repository;
 using Connect.Infrastructure.Repository.IRepository;
-using Connect.Domain;
+using Connect.Domain.Entities;
 using Connect.Application.Interfaces;
 using Connect.Application.StaticDetails;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Connect.Domain.Entities;
 
 namespace Connect.Application.Service
 {
     public class NotificationService : INotificationService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly INotificationDispatcher _notificationDispatcher;
 
-        public NotificationService(IUnitOfWork unitOfWork, IHubContext<NotificationHub> hubContext)
+        public NotificationService(IUnitOfWork unitOfWork, INotificationDispatcher notificationDispatcher)
         {
             _unitOfWork = unitOfWork;
-            _hubContext = hubContext;
+            _notificationDispatcher = notificationDispatcher;
         }
-
         public async Task AddNewNotificationAsync(int userId, string notificationType, string userFullName, int? postId)
         {
             var newNotification = new Notification
@@ -30,7 +29,7 @@ namespace Connect.Application.Service
                 Message = GetPostMessage(notificationType, userFullName),
                 Type = notificationType,
                 IsRead = false,
-                PostId = postId.HasValue ? postId.Value : null,
+                PostId = postId ?? null,
                 DateCreated = DateTime.UtcNow,
                 DateUpdated = DateTime.UtcNow
             };
@@ -38,9 +37,9 @@ namespace Connect.Application.Service
             await _unitOfWork.NotificationRepository.AddAsync(newNotification);
             var notificationNumber = await GetUnreadNotificationsCountAsync(userId);
 
-            await _hubContext.Clients.User(userId.ToString())
-                .SendAsync("ReceiveNotification", notificationNumber);
+            await _notificationDispatcher.DispatchNotificationAsync(userId, notificationNumber);
         }
+
 
         public async Task<int> GetUnreadNotificationsCountAsync(int userId)
         {

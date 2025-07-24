@@ -1,14 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Connect.Infrastructure.Repository;
 using Connect.Infrastructure.Repository.IRepository;
-using Connect.Domain;
-
 using Connect.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Connect.Application.Dtos;
+using Connect.Domain.Entities;
 
 namespace Connect.Application.Service
 {
@@ -31,22 +28,22 @@ namespace Connect.Application.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<SettingsViewModel> GetProfileViewModelAsync(User user)
+        public async Task<SettingsDto> GetProfileViewModelAsync(UserDto user)
         {
-            return new SettingsViewModel
+            return new SettingsDto
             {
                 User = user,
-                UpdateProfile = new UpdateProfileViewModel
+                UpdateProfile = new UpdateProfileDto
                 {
                     FullName = user.FullName,
                     UserName = user.UserName,
                     Bio = user.Bio
                 },
-                UpdatePassword = new UpdatePasswordViewModel()
+                UpdatePassword = new UpdatePasswordDto()
             };
         }
 
-        public async Task<ServiceResult> UpdateProfileAsync(UpdateProfileViewModel model, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult> UpdateProfileAsync(UpdateProfileDto model, ClaimsPrincipal claimsPrincipal)
         {
             var context = new ValidationContext(model);
             var results = new List<ValidationResult>();
@@ -76,7 +73,7 @@ namespace Connect.Application.Service
             return new ServiceResult { Succeeded = true };
         }
 
-        public async Task<ServiceResult> UpdatePasswordAsync(UpdatePasswordViewModel model, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult> UpdatePasswordAsync(UpdatePasswordDto model, ClaimsPrincipal claimsPrincipal)
         {
             if (model.NewPassword != model.ConfirmNewPassword)
                 return new ServiceResult { Succeeded = false, ErrorMessage = "Passwords do not match or input is invalid." };

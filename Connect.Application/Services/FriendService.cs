@@ -1,12 +1,9 @@
-﻿using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Connect.Infrastructure.Repository;
-using Connect.Infrastructure.Repository.IRepository;
-using Connect.Domain;
-using Connect.Domain.DTOs;
+﻿using Connect.Infrastructure.Repository.IRepository;
 using Connect.Application.Interfaces;
 using Connect.Application.StaticDetails;
 using Microsoft.EntityFrameworkCore;
+using Connect.Domain.Dtos;
+using Connect.Domain.Entities;
 
 namespace Connect.Application.Service
 {
@@ -78,7 +75,7 @@ namespace Connect.Application.Service
             });
         }
 
-        public async Task<List<UserWithFriendsCountDTO>> GetSuggestedFriendsAsync(int userId)
+        public async Task<List<UserWithFriendsCountDto>> GetSuggestedFriendsAsync(int userId)
         {
             var existingFriendIds = await _unitOfWork.FriendshipRepository.SelectAsync(
                 f => f.SenderId == userId ? f.ReceiverId : f.SenderId,
@@ -95,11 +92,11 @@ namespace Connect.Application.Service
                 predicate: u => u.Id != userId && !existingFriendIds.Contains(u.Id) && !pendingRequestIds.Contains(u.Id),
                 noTracking: true);
 
-            var result = new List<UserWithFriendsCountDTO>();
+            var result = new List<UserWithFriendsCountDto>();
             foreach (var user in suggestedFriends)
             {
                 var friendsCount = await _unitOfWork.FriendshipRepository.CountAsync(f => f.SenderId == user.Id || f.ReceiverId == user.Id);
-                result.Add(new UserWithFriendsCountDTO
+                result.Add(new UserWithFriendsCountDto
                 {
                     User = user,
                     FriendsCount = friendsCount

@@ -1,4 +1,5 @@
-﻿using Connect.Domain;
+﻿using Connect.Domain.Entities;
+using Connect.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

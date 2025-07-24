@@ -1,5 +1,5 @@
 ﻿using Connect.Controllers.Base;
-using Connect.Domain;
+using Connect.Domain.Entities;
 using Connect.Application.Service;
 using Connect.Application.Interfaces;
 using Microsoft.AspNetCore.Identity;

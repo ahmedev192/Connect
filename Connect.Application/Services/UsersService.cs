@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Connect.Infrastructure.Data;
 using Connect.Infrastructure.Repository;
 using Connect.Infrastructure.Repository.IRepository;
-using Connect.Domain;
 using Connect.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Connect.Domain.Entities;
 
 namespace Connect.Application.Service
 {

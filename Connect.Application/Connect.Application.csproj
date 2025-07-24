@@ -10,6 +10,8 @@
     <Compile Remove="Service\IService\IFileUpload.cs" />
   </ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="12.0.1" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.App" Version="9.0.0" />
 	</ItemGroup>
 	<ItemGroup>

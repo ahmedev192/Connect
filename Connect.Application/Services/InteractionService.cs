@@ -1,11 +1,8 @@
-﻿using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Connect.Infrastructure.Repository;
+﻿
 using Connect.Infrastructure.Repository.IRepository;
-using Connect.Domain;
-using Connect.Domain.DTOs;
 using Connect.Application.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Connect.Domain.Dtos;
+using Connect.Domain.Entities;
 
 namespace Connect.Application.Service
 {
@@ -20,9 +17,9 @@ namespace Connect.Application.Service
             _notificationService = notificationService;
         }
 
-        public async Task<NotificationDTO> TogglePostLikeAsync(int postId, int userId)
+        public async Task<NotificationDto> TogglePostLikeAsync(int postId, int userId)
         {
-            var response = new NotificationDTO
+            var response = new NotificationDto
             {
                 Success = true,
                 SendNotification = false
@@ -72,9 +69,9 @@ namespace Connect.Application.Service
             return comment.PostId;
         }
 
-        public async Task<NotificationDTO> TogglePostFavoriteAsync(int postId, int userId)
+        public async Task<NotificationDto> TogglePostFavoriteAsync(int postId, int userId)
         {
-            var response = new NotificationDTO
+            var response = new NotificationDto
             {
                 Success = true,
                 SendNotification = false

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Connect.Domain
+namespace Connect.Domain.Entities
 {
     public class Report
     {
@@ -19,3 +19,4 @@ namespace Connect.Domain
         public User User { get; set; }
     }
 }
+ 

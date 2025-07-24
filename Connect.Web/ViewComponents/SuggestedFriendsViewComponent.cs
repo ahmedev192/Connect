@@ -1,9 +1,8 @@
-﻿using System.Security.Claims;
-using Connect.Domain;
-
-using Connect.Application.Interfaces;
+﻿using Connect.Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Connect.Domain.Entities;
+using Connect.Web.ViewModels;
 
 namespace Connect.ViewComponents
 {

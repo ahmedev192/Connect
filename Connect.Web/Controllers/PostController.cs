@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Connect.Controllers.Base;
 using Connect.Infrastructure.Data;
-using Connect.Infrastructure.Hubs;
-using Connect.Domain;
+using Connect.Domain.Entities;
 using Connect.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Connect.Web.Hubs;
 
 namespace Connect.Controllers
 {

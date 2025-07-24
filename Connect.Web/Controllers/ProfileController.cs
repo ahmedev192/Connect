@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using Connect.Domain;
-
-using Connect.Application.Service;
+using AutoMapper;
+using Connect.Application.Dtos;
 using Connect.Application.Interfaces;
+using Connect.Domain.Entities;
+using Connect.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +16,14 @@ namespace Connect.Controllers
         private readonly IProfileService _profileService;
         private readonly UserManager<User> _userManager;
         private readonly IFileUploadService _fileUploadService;
+        private readonly IMapper _mapper;
 
-        public ProfileController(IProfileService profileService, UserManager<User> userManager, IFileUploadService fileUploadService)
+        public ProfileController(IProfileService profileService, UserManager<User> userManager, IFileUploadService fileUploadService, IMapper mapper)
         {
             _profileService = profileService;
             _userManager = userManager;
             _fileUploadService = fileUploadService;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index()
@@ -54,7 +56,17 @@ namespace Connect.Controllers
         public async Task<IActionResult> UpdateProfile(SettingsViewModel model)
         {
             TempData["ActiveTab"] = "Profile";
-            var result = await _profileService.UpdateProfileAsync(model.UpdateProfile, User);
+            if (!ModelState.IsValid)
+            {
+                TempData["UserProfileError"] = "Invalid profile data.";
+                return RedirectToAction("Index");
+            }
+
+            // Map UpdateProfileViewModel to UpdateProfileDto
+            var updateProfileDto = _mapper.Map<UpdateProfileDto>(model.UpdateProfile);
+
+            // Call service with DTO
+            var result = await _profileService.UpdateProfileAsync(updateProfileDto, User);
             if (result.Succeeded)
             {
                 TempData["UserProfileSuccess"] = "Profile updated successfully.";
@@ -62,7 +74,7 @@ namespace Connect.Controllers
             }
 
             TempData["UserProfileError"] = result.ErrorMessage;
-            return RedirectToAction("Index" );
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -70,7 +82,22 @@ namespace Connect.Controllers
         public async Task<IActionResult> UpdatePassword(SettingsViewModel model)
         {
             TempData["ActiveTab"] = "Password";
-            var result = await _profileService.UpdatePasswordAsync(model.UpdatePassword, User);
+            // Create a new validation context for UpdatePassword
+            var validationContext = new ValidationContext(model.UpdatePassword);
+            var validationResults = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(model.UpdatePassword, validationContext, validationResults, true);
+
+            if (!isValid)
+            {
+                TempData["PasswordError"] = "Invalid password data.";
+                return RedirectToAction("Index");
+            }
+
+            // Map UpdatePasswordViewModel to UpdatePasswordDto
+            var updatePasswordDto = _mapper.Map<UpdatePasswordDto>(model.UpdatePassword);
+
+            // Call service with DTO
+            var result = await _profileService.UpdatePasswordAsync(updatePasswordDto, User);
             if (result.Succeeded)
             {
                 TempData["PasswordSuccess"] = "Password updated successfully.";
@@ -80,6 +107,7 @@ namespace Connect.Controllers
             TempData["PasswordError"] = result.ErrorMessage;
             return RedirectToAction("Index");
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

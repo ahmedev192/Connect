@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Connect.Domain;
-using Connect.Domain.DTOs;
+﻿using Connect.Domain.Dtos;
+using Connect.Domain.Entities;
 
 namespace Connect.Application.Interfaces
 {
@@ -13,7 +8,7 @@ namespace Connect.Application.Interfaces
         Task SendRequestAsync(int senderId, int receiverId);
         Task<FriendRequest> UpdateRequestAsync(int requestId, string status);
         Task RemoveFriendAsync(int frienshipId);
-        Task<List<UserWithFriendsCountDTO>> GetSuggestedFriendsAsync(int userId);
+        Task<List<UserWithFriendsCountDto>> GetSuggestedFriendsAsync(int userId);
         Task<List<FriendRequest>> GetSentFriendRequestAsync(int userId);
         Task<List<FriendRequest>> GetReceivedFriendRequestAsync(int userId);
         Task<List<Friendship>> GetFriendsAsync(int userId);

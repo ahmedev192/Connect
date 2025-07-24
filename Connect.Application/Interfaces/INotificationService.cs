@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Connect.Domain;
+using Connect.Domain.Entities;
+using Connect.Domain.Entities;
 
 namespace Connect.Application.Interfaces
 {

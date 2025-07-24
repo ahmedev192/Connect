@@ -1,8 +1,9 @@
-﻿using Connect.Domain;
+﻿using Connect.Domain.Entities;
 
 using Connect.Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Connect.Web.ViewModels;
 
 namespace Connect.Controllers
 {

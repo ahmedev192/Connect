@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using Connect.Infrastructure.Data;
 using Connect.Infrastructure.Repository.IRepository;
-using Connect.Domain;
+using Connect.Domain.Entities;
+using Connect.Domain.Entities;
 
 namespace Connect.Infrastructure.Repository
 {

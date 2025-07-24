@@ -1,10 +1,10 @@
 ﻿using Connect.Controllers.Base;
-using Connect.Domain;
 using Connect.Application.Interfaces;
 using Connect.Application.StaticDetails;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Connect.Domain.Entities;
 
 namespace Connect.Controllers
 {

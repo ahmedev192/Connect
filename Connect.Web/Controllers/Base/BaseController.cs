@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Connect.Domain;
+using Connect.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 

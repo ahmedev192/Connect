@@ -1,10 +1,12 @@
 ﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Connect.Domain;
+using Connect.Domain.Entities;
 using Connect.Application.Interfaces;
 using Connect.Application.StaticDetails;
 using Microsoft.AspNetCore.Identity;
+using Connect.Application.Dtos;
+using Connect.Domain.Entities;
 
 namespace Connect.Application.Service
 {
@@ -24,7 +26,7 @@ namespace Connect.Application.Service
             _usersService = usersService;
         }
 
-        public async Task<SignInResult> LoginAsync(LoginViewModel model)
+        public async Task<SignInResult> LoginAsync(LoginDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
@@ -33,13 +35,13 @@ namespace Connect.Application.Service
             return await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
         }
 
-        public async Task<IdentityResult> RegisterAsync(RegisterViewModel model)
+        public async Task<IdentityResult> RegisterAsync(RegisterDto model)
         {
             var user = new User
             {
                 UserName = model.Email?.Split('@')?.FirstOrDefault() ?? "unknown",
                 Email = model.Email,
-                FullName = $"{model.FirstName} {model.LastName}"
+                FullName = model.FullName
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);

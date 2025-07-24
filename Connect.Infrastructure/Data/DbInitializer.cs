@@ -1,5 +1,6 @@
 ﻿using System;
-using Connect.Domain;
+using Connect.Domain.Entities;
+using Connect.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

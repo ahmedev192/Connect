@@ -1,5 +1,5 @@
 ﻿using Connect.Infrastructure.Data;
-using Connect.Domain;
+using Connect.Domain.Entities;
 using Connect.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

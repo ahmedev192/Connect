@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
-namespace Connect.Domain
+namespace Connect.Domain.Entities
 {
     public class Post
     {
@@ -30,6 +30,6 @@ namespace Connect.Domain
 
 
 
-
+            
     }
 }

@@ -4,16 +4,17 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Connect.Domain;
+using Connect.Application.Dtos;
+using Connect.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 
 namespace Connect.Application.Interfaces
 {
     public interface IProfileService
     {
-        Task<SettingsViewModel> GetProfileViewModelAsync(User user);
-        Task<ServiceResult> UpdateProfileAsync(UpdateProfileViewModel model, ClaimsPrincipal user);
-        Task<ServiceResult> UpdatePasswordAsync(UpdatePasswordViewModel model, ClaimsPrincipal user);
+        Task<SettingsDto> GetProfileViewModelAsync(UserDto user);
+        Task<ServiceResult> UpdateProfileAsync(UpdateProfileDto model, ClaimsPrincipal user);
+        Task<ServiceResult> UpdatePasswordAsync(UpdatePasswordDto model, ClaimsPrincipal user);
         Task<ServiceResult> UpdateProfilePictureAsync(IFormFile file, ClaimsPrincipal user);
     }
 
