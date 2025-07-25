@@ -66,5 +66,6 @@
 # Ignore generated Tailwind CSS file from language stats
 Connect.Web/wwwroot/css/tailwind.css linguist-vendored
 
+
 #ignore ukit.js
-wwwroot/js/uikit.min.js linguist-vendored
+Connect.Web/wwwroot/js/uikit.min.js linguist-vendored
