@@ -88,7 +88,16 @@ namespace Connect.Controllers
 
             return View(model);
         }
-     
+
+
+        [HttpGet]
+        public IActionResult ExternalLogin(string provider)
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account");
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+
         [HttpGet]
         public async Task<IActionResult> ExternalLoginCallback()
         {
