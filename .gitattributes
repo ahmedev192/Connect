@@ -69,3 +69,5 @@ Connect.Web/wwwroot/css/tailwind.css linguist-vendored
 
 #ignore ukit.js
 Connect.Web/wwwroot/js/uikit.min.js linguist-vendored
+Connect.Web/wwwroot/syntax-highlighter/**/*.js linguist-vendored
+
