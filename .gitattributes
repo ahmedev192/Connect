@@ -64,4 +64,5 @@
 
 
 # Ignore generated Tailwind CSS file from language stats
-Connect.Web/wwwroot/css/tailwind.css
+Connect.Web/wwwroot/css/tailwind.css linguist-vendored
+
