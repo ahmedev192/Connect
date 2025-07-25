@@ -56,11 +56,11 @@ namespace Connect.Controllers
         public async Task<IActionResult> UpdateProfile(SettingsViewModel model)
         {
             TempData["ActiveTab"] = "Profile";
-            if (!ModelState.IsValid)
-            {
-                TempData["UserProfileError"] = "Invalid profile data.";
-                return RedirectToAction("Index");
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    TempData["UserProfileError"] = "Invalid profile data.";
+            //    return RedirectToAction("Index");
+            //}
 
             // Map UpdateProfileViewModel to UpdateProfileDto
             var updateProfileDto = _mapper.Map<UpdateProfileDto>(model.UpdateProfile);

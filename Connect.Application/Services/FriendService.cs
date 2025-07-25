@@ -119,6 +119,14 @@ namespace Connect.Application.Services
                 predicate: u => u.Id != userId && !existingFriendIds.Contains(u.Id) && !pendingRequestIds.Contains(u.Id),
                 noTracking: true);
 
+
+            foreach(var user in suggestedFriends)
+            {
+                user.ProfilePictureUrl = _fileUploadService.ResolveImageOrDefault(
+                    user.ProfilePictureUrl, "/images/avatars/user.png");
+            }
+
+
             var result = new List<UserWithFriendsCountDto>();
             foreach (var user in suggestedFriends)
             {

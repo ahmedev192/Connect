@@ -12,5 +12,6 @@ namespace Connect.Application.Interfaces
         Task<Post> ProcessPosts(Post post);
 
 
+
     }
 }
