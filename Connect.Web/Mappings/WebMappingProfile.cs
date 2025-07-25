@@ -8,7 +8,6 @@ namespace Connect.Web.Mappings
 {
     public class WebMappingProfile : Profile
     {
-
         public WebMappingProfile()
         {
             // ViewModel to DTO mappings
@@ -41,7 +40,7 @@ namespace Connect.Web.Mappings
             CreateMap<User, UserWithFriendsCountViewModel>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
-                .ForMember(dest => dest.ProfilePictureUrl, opt => opt.MapFrom(src => src.ProfilePictureUrl))
+                .ForMember(dest => dest.ProfilePictureUrl, opt => opt.MapFrom(src => src.ProfilePictureUrl ?? "/images/avatars/user.png"))
                 .ForMember(dest => dest.FriendsCount, opt => opt.Ignore());
 
             // DTO to ViewModel mappings
@@ -59,11 +58,20 @@ namespace Connect.Web.Mappings
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
                 .ForMember(dest => dest.Posts, opt => opt.MapFrom(src => src.Posts));
 
-            // Map FriendshipDto lists to FriendshipsViewModel
+            // Map DTO lists to FriendshipsViewModel
             CreateMap<IEnumerable<FriendshipDto>, FriendshipsViewModel>()
-                .ForMember(dest => dest.Friends, opt => opt.Ignore()) // Handled separately
+                .ForMember(dest => dest.Friends, opt => opt.MapFrom(src => src.ToList()))
                 .ForMember(dest => dest.SentRequests, opt => opt.Ignore())
-                .ForMember(dest => dest.RecievedRequests, opt => opt.Ignore());
+                .ForMember(dest => dest.ReceivedRequests, opt => opt.Ignore());
+
+            CreateMap<IEnumerable<FriendRequestDto>, FriendshipsViewModel>()
+                .ForMember(dest => dest.Friends, opt => opt.Ignore())
+                .ForMember(dest => dest.SentRequests, opt => opt.MapFrom((src, dest, _, context) =>
+                    context.Items.ContainsKey("requestType") && (string)context.Items["requestType"] == "Sent"
+                    ? src.ToList() : dest.SentRequests))
+                .ForMember(dest => dest.ReceivedRequests, opt => opt.MapFrom((src, dest, _, context) =>
+                    context.Items.ContainsKey("requestType") && (string)context.Items["requestType"] == "Received"
+                    ? src.ToList() : dest.ReceivedRequests));
         }
     }
 }

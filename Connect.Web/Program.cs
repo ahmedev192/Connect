@@ -2,6 +2,7 @@ using AutoMapper;
 using Connect.Application.Interfaces;
 using Connect.Application.Mappings;
 using Connect.Application.Service;
+using Connect.Application.Services;
 using Connect.Domain.Entities;
 using Connect.Domain.Entities;
 using Connect.Infrastructure.Data;

@@ -16,7 +16,7 @@ namespace Connect.Application.Mappings
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
                 .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.Bio))
-                .ForMember(dest => dest.ProfilePictureUrl, opt => opt.MapFrom(src => src.ProfilePictureUrl));
+                .ForMember(dest => dest.ProfilePictureUrl, opt => opt.MapFrom(src => src.ProfilePictureUrl ?? "/images/avatars/user.png"));
 
             CreateMap<Post, PostDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -24,22 +24,25 @@ namespace Connect.Application.Mappings
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.DateCreated));
 
             CreateMap<Friendship, FriendshipDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FriendId, opt => opt.MapFrom((src, dest, _, context) =>
-                    context.Items.ContainsKey("currentUserId") && src.ReceiverId == (int)context.Items["currentUserId"]
-                    ? src.SenderId : src.ReceiverId))
+                    context.Items.ContainsKey("currentUserId") && src.User1Id == (int)context.Items["currentUserId"]
+                    ? src.User2Id : src.User1Id))
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom((src, dest, _, context) =>
-                    context.Items.ContainsKey("currentUserId") && src.ReceiverId == (int)context.Items["currentUserId"]
-                    ? src.Sender.FullName : src.Receiver.FullName))
+                    context.Items.ContainsKey("currentUserId") && src.User1Id == (int)context.Items["currentUserId"]
+                    ? src.User2.FullName : src.User1.FullName))
                 .ForMember(dest => dest.ProfilePictureUrl, opt => opt.MapFrom((src, dest, _, context) =>
-                    context.Items.ContainsKey("currentUserId") && src.ReceiverId == (int)context.Items["currentUserId"]
-                    ? src.Sender.ProfilePictureUrl : src.Receiver.ProfilePictureUrl));
+                    context.Items.ContainsKey("currentUserId") && src.User1Id == (int)context.Items["currentUserId"]
+                    ? (src.User2.ProfilePictureUrl ?? "/images/avatars/user.png") : (src.User1.ProfilePictureUrl ?? "/images/avatars/user.png")));
 
             CreateMap<FriendRequest, FriendRequestDto>()
                 .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.SenderId))
                 .ForMember(dest => dest.SenderFullName, opt => opt.MapFrom(src => src.Sender.FullName))
+                .ForMember(dest => dest.SenderProfilePictureUrl, opt => opt.MapFrom(src => src.Sender.ProfilePictureUrl ?? "/images/avatars/user.png"))
                 .ForMember(dest => dest.ReceiverId, opt => opt.MapFrom(src => src.ReceiverId))
                 .ForMember(dest => dest.ReceiverFullName, opt => opt.MapFrom(src => src.Receiver.FullName))
+                .ForMember(dest => dest.ReceiverProfilePictureUrl, opt => opt.MapFrom(src => src.Receiver.ProfilePictureUrl ?? "/images/avatars/user.png"))
                 .ForMember(dest => dest.SentAt, opt => opt.MapFrom(src => src.DateCreated));
 
             CreateMap<Hashtag, HashtagDto>()
@@ -109,7 +112,11 @@ namespace Connect.Application.Mappings
                 .ForMember(dest => dest.Favorites, opt => opt.Ignore())
                 .ForMember(dest => dest.Reports, opt => opt.Ignore())
                 .ForMember(dest => dest.Stories, opt => opt.Ignore())
-                .ForMember(dest => dest.Notifications, opt => opt.Ignore());
+                .ForMember(dest => dest.Notifications, opt => opt.Ignore())
+                .ForMember(dest => dest.SentFriendRequests, opt => opt.Ignore())
+                .ForMember(dest => dest.ReceivedFriendRequests, opt => opt.Ignore())
+                .ForMember(dest => dest.FriendshipsAsUser1, opt => opt.Ignore())
+                .ForMember(dest => dest.FriendshipsAsUser2, opt => opt.Ignore());
 
             CreateMap<UpdateProfileDto, User>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
@@ -126,7 +133,11 @@ namespace Connect.Application.Mappings
                 .ForMember(dest => dest.Favorites, opt => opt.Ignore())
                 .ForMember(dest => dest.Reports, opt => opt.Ignore())
                 .ForMember(dest => dest.Stories, opt => opt.Ignore())
-                .ForMember(dest => dest.Notifications, opt => opt.Ignore());
+                .ForMember(dest => dest.Notifications, opt => opt.Ignore())
+                .ForMember(dest => dest.SentFriendRequests, opt => opt.Ignore())
+                .ForMember(dest => dest.ReceivedFriendRequests, opt => opt.Ignore())
+                .ForMember(dest => dest.FriendshipsAsUser1, opt => opt.Ignore())
+                .ForMember(dest => dest.FriendshipsAsUser2, opt => opt.Ignore());
         }
     }
 }

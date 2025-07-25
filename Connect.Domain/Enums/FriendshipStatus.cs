@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Connect.Application.StaticDetails
 {
-    public class FriendshipStatus
+    public enum FriendRequestStatus
     {
-        public const string Pending = "Pending";
-        public const string Accepted = "Accepted";
-        public const string Rejected = "Rejected";
-        public const string Canceled = "Canceled";
+        Pending,
+        Accepted,
+        Rejected
     }
+
 }

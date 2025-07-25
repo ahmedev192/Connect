@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Connect.Controllers.Base;
 using Connect.Infrastructure.Data;
-using Connect.Infrastructure.Migrations;
 using Connect.Domain.Entities;
 using Connect.Application.Service;
 using Connect.Application.Interfaces;

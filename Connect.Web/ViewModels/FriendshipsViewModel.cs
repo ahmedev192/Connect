@@ -1,14 +1,12 @@
-﻿using Connect.Domain.Entities;
+﻿using Connect.Application.Dtos;
+using Connect.Domain.Entities;
 
 namespace Connect.Web.ViewModels
 {
     public class FriendshipsViewModel
     {
-        public List<Friendship> Friends = new List<Friendship>();
-        public List<FriendRequest> SentRequests = new List<FriendRequest>();
-        public List<FriendRequest> RecievedRequests = new List<FriendRequest>();
-
-
-
+        public List<FriendshipDto> Friends { get; set; } = new List<FriendshipDto>();
+        public List<FriendRequestDto> SentRequests { get; set; } = new List<FriendRequestDto>();
+        public List<FriendRequestDto> ReceivedRequests { get; set; } = new List<FriendRequestDto>();
     }
 }

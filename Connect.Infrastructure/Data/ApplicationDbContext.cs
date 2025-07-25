@@ -1,5 +1,4 @@
 ﻿using Connect.Domain.Entities;
-using Connect.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +10,8 @@ namespace Connect.Infrastructure.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-
         }
+
         public DbSet<Post> Posts { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Like> Likes { get; set; }
@@ -25,13 +24,11 @@ namespace Connect.Infrastructure.Data
         public DbSet<Friendship> Friendships { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            //Customize the ASP.NET identity model table names
+            // Customize the ASP.NET Identity model table names
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles");
             modelBuilder.Entity<IdentityUserRole<int>>().ToTable("UserRoles");
@@ -40,17 +37,14 @@ namespace Connect.Infrastructure.Data
             modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
             modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
 
-
-            //Posts
+            // Posts
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Posts)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            //Likes
-
+            // Likes
             modelBuilder.Entity<Like>()
                 .HasOne(l => l.User)
                 .WithMany(u => u.Likes)
@@ -63,13 +57,12 @@ namespace Connect.Infrastructure.Data
                 .HasForeignKey(l => l.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
-            //Comments
+            // Comments
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Post)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(c => c.PostId)
-                .OnDelete(DeleteBehavior.Cascade); // or Restrict if you want manual cleanup
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.User)
@@ -77,9 +70,7 @@ namespace Connect.Infrastructure.Data
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-
-            //Favorites
+            // Favorites
             modelBuilder.Entity<Favorite>()
                 .HasKey(f => new { f.PostId, f.UserId });
 
@@ -95,8 +86,7 @@ namespace Connect.Infrastructure.Data
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            
-            //Reports
+            // Reports
             modelBuilder.Entity<Report>()
                 .HasKey(f => new { f.PostId, f.UserId });
 
@@ -112,108 +102,55 @@ namespace Connect.Infrastructure.Data
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Stories
+            modelBuilder.Entity<Story>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.Stories)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<User>()
-               .HasMany(u => u.Stories)
-               .WithOne(p => p.User)
-               .HasForeignKey(p => p.UserId);
-
-
-
-            //Friendship configurations
+            // FriendRequest configurations
             modelBuilder.Entity<FriendRequest>()
                 .HasOne(fr => fr.Sender)
-                .WithMany()
+                .WithMany(u => u.SentFriendRequests)
                 .HasForeignKey(fr => fr.SenderId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<FriendRequest>()
                 .HasOne(fr => fr.Receiver)
-                .WithMany()
+                .WithMany(u => u.ReceivedFriendRequests)
                 .HasForeignKey(fr => fr.ReceiverId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Unique constraint for FriendRequest to prevent duplicate requests
+            modelBuilder.Entity<FriendRequest>()
+                .HasIndex(fr => new { fr.SenderId, fr.ReceiverId })
+                .HasDatabaseName("IX_FriendRequest_SenderId_ReceiverId")
+                .IsUnique();
+
+            // Friendship configurations
             modelBuilder.Entity<Friendship>()
-                .HasOne(fr => fr.Sender)
-                .WithMany()
-                .HasForeignKey(fr => fr.SenderId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasOne(f => f.User1)
+                .WithMany(u => u.FriendshipsAsUser1)
+                .HasForeignKey(f => f.User1Id)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Friendship>()
-                .HasOne(fr => fr.Receiver)
-                .WithMany()
-                .HasForeignKey(fr => fr.ReceiverId)
+                .HasOne(f => f.User2)
+                .WithMany(u => u.FriendshipsAsUser2)
+                .HasForeignKey(f => f.User2Id)
                 .OnDelete(DeleteBehavior.Cascade);
-           
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            //modelBuilder.Entity<User>().HasData(
-            //new User
-            //{
-            //    Id = 1,
-            //    FullName = "Ahmed Mahmoud",
-            //    ProfilePictureUrl = " "
-            //},
-            //new User
-            //{
-            //    Id = 2,
-            //    FullName = "Youssef Mostafa",
-            //    ProfilePictureUrl = " "
-            //});
 
+            // Unique constraint for Friendship to prevent duplicate friendships
+            modelBuilder.Entity<Friendship>()
+                .HasIndex(f => new { f.UniqueUser1Id, f.UniqueUser2Id })
+                .HasDatabaseName("IX_Friendship_User1Id_User2Id")
+                .IsUnique();
 
-
-            //modelBuilder.Entity<Post>().HasData(
-            //    new Post
-            //    {
-            //        Id = 1,
-            //        Content = "Welcome to Connect! This is your first post.",
-            //        ImageUrl = null,
-            //        NrOfReports = 0,
-            //        DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
-            //        DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
-            //        UserId = 1
-            //    },
-            //    new Post
-            //    {
-            //        Id = 2,
-            //        Content = "Connect is designed to help you connect with others.",
-            //        ImageUrl = null,
-            //        NrOfReports = 0,
-            //        DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
-            //        DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
-            //        UserId = 2
-
-            //    },
-            //    new Post
-            //    {
-            //        Id = 3,
-            //        Content = "Feel free to explore and share your thoughts!",
-            //        ImageUrl = null,
-            //        NrOfReports = 0,
-            //        DateCreated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
-            //        DateUpdated = new DateTime(2025, 7, 12, 14, 34, 0, DateTimeKind.Utc),
-            //        UserId = 1
-
-
-            //    });
-
-
-
-
-
+            // Configure FriendRequestStatus enum
+            modelBuilder.Entity<FriendRequest>()
+                .Property(fr => fr.Status)
+                .HasConversion<string>();
         }
-
     }
 }
