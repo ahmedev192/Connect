@@ -14,22 +14,28 @@ namespace Connect.Controllers
     {
         private readonly IAdminService _adminService;
         private readonly IFileUploadService _fileUploadService; 
+        private readonly UserManager<User> _userManager;
         public AdminController(UserManager<User> userManager, IAdminService adminService, IFileUploadService fileUploadService) : base(userManager)
         {
             _adminService = adminService;
             _fileUploadService = fileUploadService;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
-
         {
             var reportedPosts = await _adminService.GetReportedPostsAsync();
-            //foreach(var post in reportedPosts)
-            //{
-            //    post.ImageUrl = _fileUploadService.ResolveImageOrDefault(post.ImageUrl, @"wwwroot/images/placeholders/post-placeholder.jpg");
-            //}
-            return View(reportedPosts);
+            var users = _userManager.Users.ToList();
+
+            var model = new
+            {
+                Posts = reportedPosts,
+                Users = users
+            };
+
+            return View(model);
         }
+
 
 
 
