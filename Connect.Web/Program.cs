@@ -112,15 +112,16 @@ namespace Connect
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var userManager = services.GetRequiredService<UserManager<User>>();
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
-                    await DbInitializer.SeedUsersAndRolesAsync(userManager, roleManager);
-
                     var dbContext = services.GetRequiredService<ApplicationDbContext>();
                     var logger = services.GetRequiredService<ILogger<Program>>();
 
                     await dbContext.Database.MigrateAsync();
                     await DbInitializer.SeedAsync(dbContext, logger);
+                    var userManager = services.GetRequiredService<UserManager<User>>();
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+                    await DbInitializer.SeedUsersAndRolesAsync(userManager, roleManager);
+
+              
                 }
                 catch (Exception ex)
                 {

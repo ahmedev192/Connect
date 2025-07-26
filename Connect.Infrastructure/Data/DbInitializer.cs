@@ -1,6 +1,5 @@
 ﻿using System;
 using Connect.Domain.Entities;
-using Connect.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,77 +8,58 @@ namespace Connect.Infrastructure.Data
 {
     public static class DbInitializer
     {
-        public static async Task SeedAsync(ApplicationDbContext applicationDbContext, ILogger logger)
+        public static async Task SeedAsync(ApplicationDbContext db, ILogger logger)
         {
-            //try
-            //{
-            //    var hasUsers = applicationDbContext.Users.Any();
-            //    var hasPosts = applicationDbContext.Posts.Any();
+            if (await db.Users.AnyAsync()) return;
 
-            //    if (!hasUsers && !hasPosts)
-            //    {
-            //        var users = new List<User>
-            //{
-            //    new User { FullName = "Ahmed Mahmoud", ProfilePictureUrl = "" },
-            //    new User { FullName = "Youssef Mostafa", ProfilePictureUrl = "" }
-            //};
+            var users = new List<User>
+            {
+                new User { UserName = "alice", Email = "alice@example.com", FullName = "Alice Johnson", EmailConfirmed = true, DateCreated = DateTime.UtcNow },
+                new User { UserName = "bob", Email = "bob@example.com", FullName = "Bob Smith", EmailConfirmed = true, DateCreated = DateTime.UtcNow },
+                new User { UserName = "carol", Email = "carol@example.com", FullName = "Carol Davis", EmailConfirmed = true, DateCreated = DateTime.UtcNow },
+            };
 
-            //        await applicationDbContext.Users.AddRangeAsync(users);
-            //        await applicationDbContext.SaveChangesAsync(); // Save so IDs are generated
+            db.Users.AddRange(users);
+            await db.SaveChangesAsync();
 
-            //        // Retrieve actual IDs after save
-            //        var ahmed = users.FirstOrDefault(u => u.FullName == "Ahmed Mahmoud");
-            //        var youssef = users.FirstOrDefault(u => u.FullName == "Youssef Mostafa");
+            var posts = new List<Post>
+            {
+                new Post { Content = "First post by Alice", UserId = users[0].Id, DateCreated = DateTime.UtcNow },
+                new Post { Content = "Bob's travel thoughts", UserId = users[1].Id, DateCreated = DateTime.UtcNow },
+                new Post { Content = "Carol shares an update", UserId = users[2].Id, DateCreated = DateTime.UtcNow }
+            };
 
-            //        var posts = new List<Post>
-            //{
-            //    new Post
-            //    {
-            //        Content = "Welcome to Connect! This is your first post.",
-            //        DateCreated = DateTime.UtcNow,
-            //        DateUpdated = DateTime.UtcNow,
-            //        NrOfReports = 0,
-            //        UserId = ahmed!.Id
-            //    },
-            //    new Post
-            //    {
-            //        Content = "Connect is designed to help you connect with others.",
-            //        DateCreated = DateTime.UtcNow,
-            //        DateUpdated = DateTime.UtcNow,
-            //        NrOfReports = 0,
-            //        UserId = youssef!.Id
-            //    },
-            //    new Post
-            //    {
-            //        Content = "Feel free to explore and share your thoughts!",
-            //        DateCreated = DateTime.UtcNow,
-            //        DateUpdated = DateTime.UtcNow,
-            //        NrOfReports = 0,
-            //        UserId = ahmed!.Id
-            //    }
-            //};
+            db.Posts.AddRange(posts);
+            await db.SaveChangesAsync();
 
-            //        await applicationDbContext.Posts.AddRangeAsync(posts);
-            //        await applicationDbContext.SaveChangesAsync();
+            var comments = new List<Comment>
+            {
+                new Comment { Content = "Nice post!", UserId = users[1].Id, PostId = posts[0].Id, DateCreated = DateTime.UtcNow },
+                new Comment { Content = "Thanks for sharing!", UserId = users[2].Id, PostId = posts[0].Id, DateCreated = DateTime.UtcNow },
+                new Comment { Content = "I agree!", UserId = users[0].Id, PostId = posts[1].Id, DateCreated = DateTime.UtcNow }
+            };
 
-            //        logger.LogInformation("Database seeded successfully.");
-            //    }
-            //    else
-            //    {
-            //        logger.LogInformation("Database already contains users and posts. Seeding skipped.");
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "An error occurred during database seeding.");
-            //}
-            return;
+            db.Comments.AddRange(comments);
+            await db.SaveChangesAsync();
+
+            var likes = new List<Like>
+            {
+                new Like { UserId = users[1].Id, PostId = posts[0].Id, DateCreated = DateTime.UtcNow },
+                new Like { UserId = users[2].Id, PostId = posts[0].Id, DateCreated = DateTime.UtcNow },
+                new Like { UserId = users[0].Id, PostId = posts[2].Id, DateCreated = DateTime.UtcNow }
+            };
+
+            db.Likes.AddRange(likes);
+            await db.SaveChangesAsync();
+
+            logger.LogInformation("Dummy users, posts, comments, and likes seeded successfully.");
         }
 
         public static async Task SeedUsersAndRolesAsync(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
             // Seed roles
             var roles = new[] { "Admin", "User" };
+
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -91,21 +71,26 @@ namespace Connect.Infrastructure.Data
             // Seed default admin user
             var adminEmail = "admin@example.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
             if (adminUser == null)
             {
                 var newAdmin = new User
                 {
                     UserName = "admin",
                     Email = adminEmail,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    FullName = "Ahmed"
                 };
 
-                var result = await userManager.CreateAsync(newAdmin, "Admin@123"); // Ensure password policy matches
+                var result = await userManager.CreateAsync(newAdmin, "Admin@123");
 
-                if (result.Succeeded)
+                if (!result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(newAdmin, "Admin");
+                    throw new Exception("Failed to create admin user: " +
+                        string.Join("; ", result.Errors.Select(e => e.Description)));
                 }
+
+                await userManager.AddToRoleAsync(newAdmin, "Admin");
             }
         }
     }
