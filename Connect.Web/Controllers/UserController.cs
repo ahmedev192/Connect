@@ -3,6 +3,7 @@ using Connect.Application.Dtos;
 using Connect.Application.Interfaces;
 using Connect.Application.Service;
 using Connect.Application.Services;
+using Connect.Application.StaticDetails;
 using Connect.Controllers.Base;
 using Connect.Domain.Entities;
 using Connect.Web.Mappings;
@@ -40,6 +41,9 @@ namespace Connect.Controllers
                 return NotFound();
             }
 
+            int? currentUserId =  GetUserId() ;
+            int uId = currentUserId.GetValueOrDefault();
+
             var friends = await _friendService.GetFriendsAsync(userId);
             var posts = await _userService.GetPostsByUserId(userId);
 
@@ -58,7 +62,17 @@ namespace Connect.Controllers
                 }).ToList()
             };
 
+            // Friendship & pending request checks
+            bool areFriends = (await _friendService.GetFriendsAsync(uId))
+                              .Any(f => (f.User1Id == userId || f.User2Id == userId));
+
+            bool requestAlreadySent = (await _friendService.GetSentFriendRequestAsync(uId))
+                                      .Any(r => r.ReceiverId == userId && r.Status == FriendRequestStatus.Pending);
+
+            ViewData["CanSendFriendRequest"] = !areFriends && !requestAlreadySent && currentUserId != userId;
+
             return View(viewModel);
         }
+
     }
 }

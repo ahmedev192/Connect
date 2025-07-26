@@ -33,12 +33,12 @@
 
 	@* Post heading *@
 	<div class="gap-3 p-2.5 flex text-sm font-medium sm:p-4">
-		<a>
+		<a asp-controller="User" asp-action="UserDetails" asp-route-userId="@Model.User.Id">
 			<img src="@Model.User.ProfilePictureUrl"
 				 class="w-9 h-9 rounded-full" />
 		</a>
 		<div class="flex-1">
-			<a>
+			<a asp-controller="User" asp-action="UserDetails" asp-route-userId="@Model.User.Id">
 				<h4 class="text-black">@Model.User.FullName</h4>
 				<div class="text-gray-500/80 text-xs" title="@Model.DateCreated.ToString("MM/dd/yyyy HH:mm")"> @displayTime </div>
 			</a>
