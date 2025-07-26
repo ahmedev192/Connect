@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Connect.Domain.Entities
 {
-    public class Post
+    public class Post 
     {
         [Key]
         public int Id { get; set; }

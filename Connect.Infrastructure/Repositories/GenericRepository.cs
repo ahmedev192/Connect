@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Connect.Domain.Entities;
 using Connect.Infrastructure.Data;
 using Connect.Infrastructure.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
@@ -210,9 +211,9 @@ namespace Connect.Infrastructure.Repository
 
         public async Task SoftDeleteAsync(T entity)
         {
-            if (entity is ISoftDeletable softDeletable)
+            if (entity is Post post)
             {
-                softDeletable.IsDeleted = true;
+                post.IsDeleted = true;
                 _dbSet.Update(entity);
                 await _context.SaveChangesAsync();
             }
@@ -221,7 +222,7 @@ namespace Connect.Infrastructure.Repository
                 throw new InvalidOperationException("Entity does not implement ISoftDeletable.");
             }
         }
-
+            
         public async Task SoftDeleteRangeAsync(IEnumerable<T> entities)
         {
             foreach (var entity in entities)

@@ -19,15 +19,15 @@
 					var t when t.TotalMinutes >= 1 => $"{(int)t.TotalMinutes}m ago",
 					_ => "Just now"
 				};
+	if (!post.IsDeleted)
+	{
 
-				<div class="bg-white border1 flex h-full flex-col rounded-xl text-sm font-medium shadow-sm">
+					<div class="bg-white border1 flex h-full flex-col rounded-xl text-sm font-medium shadow-sm">
 
 					@* Post heading *@
 					<div class="gap-3 p-2.5 flex text-sm font-medium sm:p-4">
 						<a>
-							<img src="@(!string.IsNullOrEmpty(post.User.ProfilePictureUrl) ?
-					   Url.Content("~/" + post.User.ProfilePictureUrl) :
-					   Url.Content("~/images/avatar/user.png"))" class="w-9 h-9 rounded-full" />
+							<img src="@post.User.ProfilePictureUrl" class="w-9 h-9 rounded-full" />
 					</a>
 
 						<div class="flex-1">
@@ -68,11 +68,11 @@
 					{
 						<a>
 							<div class="relative h-full w-full">
-								<img src="@Url.Content("~/" + post.ImageUrl)" class="h-full w-full rounded-b-xl object-cover sm:rounded-lg" />
+								<img src="@post.ImageUrl" class="h-full w-full rounded-b-xl object-cover sm:rounded-lg" />
 							</div>
 						</a>
 					}
-				</div>
+				</div>}
 			}
 		</div>
 	</div>

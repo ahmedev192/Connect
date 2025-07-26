@@ -1,4 +1,6 @@
 ﻿@using Connect.Application.StaticDetails
+@using Microsoft.AspNetCore.Identity
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +27,8 @@
 			else if (User.IsInRole(ApplicationRoles.Admin))
 			{
 				<partial name="Navigation/_TopBarAdmin" />
+				<partial name="Navigation/_SideBar" />
+
 			}
 		}
 

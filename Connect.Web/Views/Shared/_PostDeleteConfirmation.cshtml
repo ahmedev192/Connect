@@ -1,4 +1,4 @@
-﻿<div id="postDeleteDialog" uk-modal>
+﻿﻿<div id="postDeleteDialog" uk-modal>
     <div class="uk-modal-dialog bg-white relative mx-auto w-[400px] rounded-lg shadow-xl">
         <!-- Modal Header -->
         <div class="p-6">
@@ -13,7 +13,7 @@
         <!-- Modal Footer-->
         <div class="p-6 flex justify-end text-sm font-medium">
             <form asp-controller="Post" asp-action="DeletePost">
-                <input type="hidden" name="postId" id="postId" value="" />
+                <input type="hidden" name="postId" id="deleteConfirmationPostId" value="" />
                 <button type="button" class="px-4 py-1.5 uk-modal-close rounded-md">Cancel</button>
                 <button type="submit" class="px-5 py-1.5 bg-gray-100 rounded-md">Delete</button>
             </form>

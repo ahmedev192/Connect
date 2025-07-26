@@ -1,6 +1,8 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using Connect.Application.Interfaces
+@using Microsoft.AspNetCore.Identity
 @model Post
 @inject UserManager<User> userManager ;
+@inject IFileUploadService _fileService ; 
 @{
 	TimeSpan timeSpanSincePosted = DateTime.UtcNow.Subtract(Model.DateCreated);
 
@@ -11,8 +13,9 @@
 		var t when t.TotalMinutes >= 1 => $"{(int)t.TotalMinutes}m ago",
 		_ => "Just now"
 	};
-	var currentUser = userManager.GetUserAsync(User);
-	int currentUserId = currentUser.Result.Id;
+	var currentUser =await userManager.GetUserAsync(User);
+	currentUser.ProfilePictureUrl = _fileService.ResolveImageOrDefault(currentUser.ProfilePictureUrl, "/images/avatars/user.png");
+	int currentUserId = currentUser.Id;
 
 	bool isFavorited = Model.Favorites.Any(n => n.UserId == currentUserId);
 	bool isLiked = Model.Likes.Any(n => n.UserId == currentUserId);
@@ -213,7 +216,7 @@
 
 				<div class="p-2.5 border-gray-100 gap-1 flex items-center border-t sm:px-4 sm:py-3">
 					<a asp-controller="User" asp-action="UserDetails" asp-route-userId="@Model.UserId">
-						<img src="@Url.Content(Model.User.ProfilePictureUrl)" class="w-6 h-6 rounded-full" />
+						<img src="@Url.Content(currentUser.ProfilePictureUrl)" class="w-6 h-6 rounded-full" />
 					</a>
 
 

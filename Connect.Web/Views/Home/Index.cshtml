@@ -36,12 +36,14 @@
 					}
 					else
 					{
+						
 						@foreach (var post in Model)
 						{
+							if(!post.IsDeleted){
 							<partial name="_Post"
 									 model="post"
 									 view-data='new ViewDataDictionary(ViewData) { { "ShowAllComment", false } }' />
-						}
+							}}
 					}
 				</div>
 
