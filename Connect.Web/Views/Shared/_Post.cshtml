@@ -4,7 +4,7 @@
 @inject UserManager<User> userManager ;
 @inject IFileUploadService _fileService ; 
 @{
-	TimeSpan timeSpanSincePosted = DateTime.Now.Subtract(Model.DateCreated.AddHours(-5));
+	TimeSpan timeSpanSincePosted = DateTime.UtcNow.Subtract(Model.DateCreated.AddHours(+6));
 
 	string displayTime = timeSpanSincePosted switch
 	{
