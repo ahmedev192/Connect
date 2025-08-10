@@ -96,4 +96,4 @@ Pull requests, issues, and ideas are welcome. 🌱
 
 ## 🔖 Hashtags
 
-`#dotnet` `#aspnetcore` `#fullstack` `#cleancode` `#SignalR` `#CleanArchitecture` `#opensource` `#socialmedia` `#csharp` `#softwareengineering` `#devjourney`
+`#dotnet` `#aspnetcore` `#fullstack` `#cleancode` `#SignalR` `#CleanArchitecture` `#socialmedia` `#csharp` `#softwareengineering` `#devjourney`
